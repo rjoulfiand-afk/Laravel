@@ -81,24 +81,33 @@
                 </form>
             </div>
 
-            <!-- Panel Sign In (Kiri - Aktif) -->
+           <!-- Panel Sign In -->
             <div class="form-container sign-in-container absolute top-0 left-0 h-full w-1/2 z-2 flex flex-col justify-center px-12 bg-white">
-                <form action="#" class="flex flex-col items-center justify-center h-full text-center w-full">
+                <form action="/proses-login" method="POST" class="flex flex-col items-center justify-center h-full text-center w-full">
+                    @csrf <!-- Wajib ada di Laravel untuk keamanan form -->
+                    
                     <div class="mb-5 md:hidden">
-                        <!-- Logo cadangan jika di layar HP navbar hilang -->
                         <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Laravel.svg" alt="Laravel Logo" class="h-10 w-auto">
                     </div>
-                    <h2 class="text-3xl font-bold mb-2 text-gray-900">Selamat Datang</h2>
-                    <p class="text-sm text-gray-500 mb-8">Masuk untuk mengelola peminjaman barang</p>
+                    <h2 class="text-3xl font-bold mb-2 text-slate-900 tracking-tight">Selamat Datang</h2>
+                    <p class="text-sm text-slate-500 mb-6">Masuk untuk mengelola peminjaman barang</p>
                     
-                    <input type="email" placeholder="Email / Username" class="bg-gray-50 border border-gray-200 text-sm rounded-xl px-5 py-3.5 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-laravel/30 focus:border-laravel transition-all">
-                    <input type="password" placeholder="Password" class="bg-gray-50 border border-gray-200 text-sm rounded-xl px-5 py-3.5 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-laravel/30 focus:border-laravel transition-all">
+                    <!-- Munculkan pesan jika login gagal -->
+                    @if(session('error'))
+                        <div class="w-full bg-red-100 text-red-600 text-sm py-2 px-4 rounded-lg mb-4 font-medium border border-red-200">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+                    
+                    <input type="text" name="username" placeholder="Email / Username" required class="bg-slate-50 border border-slate-200 text-sm rounded-xl px-5 py-3.5 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-laravel/40 focus:border-laravel shadow-inner transition-all">
+                    <input type="password" name="password" placeholder="Password" required class="bg-slate-50 border border-slate-200 text-sm rounded-xl px-5 py-3.5 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-laravel/40 focus:border-laravel shadow-inner transition-all">
                     
                     <div class="w-full text-right mb-6">
-                        <a href="#" class="text-xs text-gray-500 hover:text-laravel transition-colors font-medium">Lupa Password?</a>
+                        <a href="#" class="text-sm text-slate-500 hover:text-laravel transition-colors font-medium">Lupa Password?</a>
                     </div>
                     
-                    <button type="button" class="w-full bg-laravel text-white rounded-xl font-semibold py-3.5 hover:bg-laravelDark hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">Masuk ke Sistem</button>
+                    <!-- Ubah type menjadi submit -->
+                    <button type="submit" class="w-full bg-gradient-to-r from-laravel to-laravelDark text-white rounded-xl font-semibold py-3.5 shadow-[0_4px_14px_0_rgb(255,45,32,0.3)] hover:shadow-[0_6px_20px_rgba(255,45,32,0.23)] hover:-translate-y-0.5 transition-all duration-300">Masuk ke Sistem</button>
                 </form>
             </div>
 
@@ -113,7 +122,6 @@
                         <button class="bg-transparent border border-white/50 hover:bg-white hover:text-laravel text-white rounded-xl font-semibold px-12 py-3.5 transition-all duration-300" id="signInBtn">Masuk Sekarang</button>
                     </div>
 
-                    <!-- Teks Overlay Kanan (Aktif saat Sign Up) -->
                     <div class="overlay-right absolute flex flex-col items-center justify-center px-14 text-center top-0 right-0 h-full w-1/2 translate-x-0">
                         <h2 class="text-3xl font-bold mb-5 tracking-wide">Siswa Baru?</h2>
                         <p class="text-sm font-light mb-8 leading-relaxed opacity-90">Ayo daftarkan dirimu untuk mendapatkan akses penuh ke sistem inventaris.</p>
