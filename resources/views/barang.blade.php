@@ -4,8 +4,6 @@
 
 @section('content')
 <div class="p-10 max-w-7xl mx-auto w-full">
-    
-    <!-- Header Halaman -->
     <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-1">Data Barang</h1>
@@ -15,8 +13,6 @@
             <i data-feather="plus" class="w-4 h-4"></i> Tambah Barang
         </button>
     </div>
-
-    <!-- Tabel Data -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 border-collapse">
@@ -31,7 +27,6 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <!-- Baris 1 -->
                     <tr class="hover:bg-slate-50/60 transition-colors">
                         <td class="px-8 py-5 font-mono text-sm font-semibold text-slate-500">INV-2026-001</td>
                         <td class="px-6 py-5 font-bold text-slate-900">Proyektor Epson EB-X05</td>

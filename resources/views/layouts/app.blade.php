@@ -3,82 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>@yield('title') - SMKN 10 SBY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] }, colors: { laravel: '#FF2D20', laravelDark: '#cc2419' } } }
-        }
-    </script>
-    <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-800 font-sans antialiased overflow-x-hidden flex">
-
-    <!-- Sidebar Master -->
-    <aside class="w-64 bg-white border-r border-slate-200/60 h-screen fixed top-0 left-0 flex flex-col z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-        <div class="h-20 flex items-center px-8 border-b border-slate-100/80">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Laravel.svg" alt="Laravel" class="h-7 w-auto mr-3">
-            <span class="text-xl font-bold text-slate-900 tracking-tight">Inventaris</span>
+<body class="bg-slate-50 flex h-screen overflow-hidden">
+    
+    <!-- Sidebar Kiri -->
+    <aside class="w-72 bg-slate-900 text-white flex flex-col transition-all duration-300">
+        <div class="h-20 flex items-center px-8 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">
+                    10
+                </div>
+                <div>
+                    <h2 class="font-bold text-lg tracking-wide">Inventaris</h2>
+                    <p class="text-xs text-slate-400 font-medium">SMKN 10 Surabaya</p>
+                </div>
+            </div>
         </div>
-        <div class="px-6 pt-6 pb-2">
-            <button class="w-full bg-gradient-to-r from-laravel to-laravelDark text-white rounded-xl font-semibold py-3 shadow-[0_4px_12px_rgba(255,45,32,0.25)] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">
-                <i data-feather="plus" class="w-4 h-4"></i> Pinjam Baru
-            </button>
-        </div>
-        <nav class="flex-1 px-4 py-4 space-y-1">
-            <div class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-2">Menu Utama</div>
-            
-            <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-r-xl font-medium transition-all {{ Request::is('dashboard') ? 'bg-gradient-to-r from-red-50 to-transparent border-l-4 border-laravel text-laravel' : 'border-l-4 border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+        
+        <!-- Menu Navigasi -->
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 bg-indigo-600 rounded-xl text-white font-medium shadow-md shadow-indigo-600/20 transition-all">
                 <i data-feather="grid" class="w-5 h-5"></i> Dashboard
             </a>
-            <a href="/barang" class="flex items-center gap-3 px-4 py-3 rounded-r-xl font-medium transition-all {{ Request::is('barang') ? 'bg-gradient-to-r from-red-50 to-transparent border-l-4 border-laravel text-laravel' : 'border-l-4 border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+            <a href="/barang" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
                 <i data-feather="box" class="w-5 h-5"></i> Data Barang
             </a>
-            <a href="/transaksi" class="flex items-center gap-3 px-4 py-3 rounded-r-xl font-medium transition-all {{ Request::is('transaksi') ? 'bg-gradient-to-r from-red-50 to-transparent border-l-4 border-laravel text-laravel' : 'border-l-4 border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
-                <i data-feather="repeat" class="w-5 h-5"></i> Transaksi
-            </a>
-            <a href="/siswa" class="flex items-center gap-3 px-4 py-3 rounded-r-xl font-medium transition-all {{ Request::is('siswa') ? 'bg-gradient-to-r from-red-50 to-transparent border-l-4 border-laravel text-laravel' : 'border-l-4 border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900' }}">
+            <a href="/siswa" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
                 <i data-feather="users" class="w-5 h-5"></i> Data Siswa
             </a>
-        </nav>
-        <div class="p-4 border-t border-slate-100/80">
-            <a href="/logout" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-red-50 hover:text-laravel rounded-xl font-medium transition-colors group">
-                <i data-feather="log-out" class="w-5 h-5 group-hover:rotate-180 transition-transform duration-500"></i> Keluar
+            <a href="/peminjaman" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <i data-feather="repeat" class="w-5 h-5"></i> Peminjaman
             </a>
+        </nav>
+        
+        <!-- Profil Admin Bawah -->
+        <div class="p-6 border-t border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-700 border-2 border-indigo-500 flex items-center justify-center overflow-hidden">
+                    <i data-feather="user" class="w-5 h-5 text-slate-300"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-white">Rixsan J.</p>
+                    <p class="text-xs text-slate-400">Administrator</p>
+                </div>
+            </div>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="ml-64 flex-1 min-h-screen flex flex-col">
-        <!-- Header Master -->
-        <header class="h-20 bg-white/70 backdrop-blur-lg border-b border-slate-200/50 sticky top-0 z-10 flex items-center justify-between px-10">
-            <div class="flex items-center bg-white border border-slate-200/80 shadow-sm rounded-full px-5 py-2.5 w-[26rem] focus-within:ring-4 focus-within:ring-laravel/10 focus-within:border-laravel transition-all">
-                <i data-feather="search" class="w-4 h-4 text-slate-400 mr-3"></i>
-                <input type="text" placeholder="Pencarian cepat..." class="bg-transparent border-none outline-none w-full text-sm text-slate-700">
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3 pl-6 border-l border-slate-200 cursor-pointer hover:opacity-80 transition-opacity">
-                    <div class="text-right hidden md:block">
-                        <p class="text-sm font-bold text-slate-800">{{ session('nama_user') }}</p>
-                        <p class="text-[11px] font-semibold text-laravel uppercase tracking-wider">{{ session('role_user') }}</p>
-                    </div>
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-laravel to-red-400 text-white flex items-center justify-center font-bold shadow-md ring-2 ring-white">RJ</div>
-                </div>
-            </div>
+    <!-- Area Konten Kanan -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Topbar -->
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-10">
+            <h2 class="text-slate-800 font-bold text-lg">@yield('title')</h2>
+            <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors">
+                <i data-feather="bell" class="w-5 h-5"></i>
+            </button>
         </header>
-
-        <!-- AREA KONTEN DINAMIS -->
-        @yield('content')
-
+        
+        <!-- Isi Halaman (Dinamis) -->
+        <div class="flex-1 overflow-y-auto">
+            @yield('content')
+        </div>
     </main>
 
-    <script> feather.replace(); </script>
+    <!-- Render Ikon -->
+    <script>feather.replace();</script>
 </body>
 </html>
