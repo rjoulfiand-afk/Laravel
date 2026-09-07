@@ -84,7 +84,7 @@
 
            <!-- Panel Sign In -->
             <div class="form-container sign-in-container absolute top-0 left-0 h-full w-1/2 z-2 flex flex-col justify-center px-14 bg-white">
-                <form action="/dashboard" method="GET" class="flex flex-col items-center justify-center h-full text-center w-full">
+                <form action="/proses-login" method="POST" class="flex flex-col items-center justify-center h-full text-center w-full">
                     @csrf 
                     
                     <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 border border-slate-100 shadow-sm">
