@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Laravel')
-
 @section('content')
 <div class="p-10 max-w-7xl mx-auto w-full">
     <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -9,6 +7,7 @@
             <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-1">Data Barang</h1>
             <p class="text-sm text-slate-500 font-medium">Kelola daftar inventaris dan ketersediaan aset sekolah.</p>
         </div>
+        
         <button class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm flex items-center gap-2 transition-all">
             <i data-feather="plus" class="w-4 h-4"></i> Tambah Barang
         </button>
@@ -40,7 +39,6 @@
                             <button class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><i data-feather="trash-2" class="w-4 h-4"></i></button>
                         </td>
                     </tr>
-                    <!-- Baris 2 -->
                     <tr class="hover:bg-slate-50/60 transition-colors">
                         <td class="px-8 py-5 font-mono text-sm font-semibold text-slate-500">INV-2026-002</td>
                         <td class="px-6 py-5 font-bold text-slate-900">Kamera DSLR Canon 1300D</td>

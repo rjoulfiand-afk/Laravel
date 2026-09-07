@@ -25,21 +25,24 @@
             </div>
         </div>
         
-        <!-- Menu Navigasi -->
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 bg-indigo-600 rounded-xl text-white font-medium shadow-md shadow-indigo-600/20 transition-all">
-                <i data-feather="grid" class="w-5 h-5"></i> Dashboard
-            </a>
-            <a href="/barang" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-feather="box" class="w-5 h-5"></i> Data Barang
-            </a>
-            <a href="/siswa" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-feather="users" class="w-5 h-5"></i> Data Siswa
-            </a>
-            <a href="/peminjaman" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-feather="repeat" class="w-5 h-5"></i> Peminjaman
-            </a>
-        </nav>
+<!-- Menu Navigasi -->
+<nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+    <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->is('dashboard') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800' }}">
+        <i data-feather="grid" class="w-5 h-5"></i> Dashboard
+    </a>
+    
+    <a href="/barang" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->is('barang') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800' }}">
+        <i data-feather="box" class="w-5 h-5"></i> Data Barang
+    </a>
+    
+    <a href="/siswa" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->is('siswa') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800' }}">
+        <i data-feather="users" class="w-5 h-5"></i> Data Siswa
+    </a>
+    
+    <a href="/peminjaman" class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all {{ request()->is('peminjaman') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-800' }}">
+        <i data-feather="repeat" class="w-5 h-5"></i> Peminjaman
+    </a>
+</nav>
         
         <!-- Profil Admin Bawah -->
         <div class="p-6 border-t border-slate-800">

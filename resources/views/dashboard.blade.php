@@ -11,7 +11,6 @@
         </div>
     </div>
 
-    <!-- Banner Welcome -->
     <div class="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-8 shadow-lg shadow-indigo-200 flex items-center justify-between mb-8 text-white relative overflow-hidden">
         <div class="relative z-10">
             <h2 class="text-2xl font-bold mb-2">Selamat datang kembali, Rixsan! 👋</h2>
@@ -20,7 +19,6 @@
         <i data-feather="cpu" class="w-32 h-32 absolute -right-4 -bottom-4 text-white opacity-20"></i>
     </div>
 
-    <!-- Tiga Kartu Statistik -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] flex items-center gap-5 transition-transform hover:-translate-y-1">
             <div class="w-14 h-14 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
