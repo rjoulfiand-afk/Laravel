@@ -100,7 +100,7 @@
                         </div>
                     @endif
                     
-                    <input type="text" name="username" placeholder="NIS / Email" required class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-5 py-3.5 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                    <input type="text" name="username" placeholder="Username" required class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-5 py-3.5 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                     <input type="password" name="password" placeholder="Password" required class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-5 py-3.5 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
                     
                     <div class="w-full text-right mb-8">
