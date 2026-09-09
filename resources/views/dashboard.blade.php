@@ -32,7 +32,8 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Aset</p>
-                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">142</h3>
+                <!-- Menghitung total data di tabel Barang secara dinamis -->
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ \App\Models\Barang::count() }}</h3>
             </div>
         </div>
         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-5">
@@ -41,7 +42,8 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Sedang Dipinjam</p>
-                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">12</h3>
+                <!-- Menghitung total data di tabel Peminjaman secara dinamis -->
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ \App\Models\Peminjaman::count() }}</h3>
             </div>
         </div>
         <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-5">
@@ -50,7 +52,8 @@
             </div>
             <div>
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Siswa Terdaftar</p>
-                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">850</h3>
+                <!-- Menghitung total data di tabel Siswa secara dinamis -->
+                <h3 class="text-3xl font-extrabold text-slate-900 mt-1">{{ \App\Models\Siswa::count() }}</h3>
             </div>
         </div>
     </div>
@@ -64,21 +67,29 @@
         </div>
         <div class="p-8">
             <form id="formPeminjaman" onsubmit="prosesPinjam(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Wajib ada untuk keamanan form Laravel -->
+                @csrf 
+                
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Nama Siswa</label>
-                    <input type="text" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
+                    <input type="text" name="nama_siswa" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-slate-700 mb-2">Kelas / Jurusan</label>
-                    <input type="text" required placeholder="Contoh: XII - RPL" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
+                    <input type="text" name="kelas" required placeholder="Contoh: XII - RPL" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
                 </div>
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold text-slate-700 mb-2">Pilih Barang</label>
-                    <select required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-slate-600">
+                    <select name="barang_id" required class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-slate-600">
                         <option value="" disabled selected>-- Pilih aset yang tersedia --</option>
-                        <option value="1">Proyektor Epson EB-X05 (Stok: 4)</option>
-                        <option value="2">Kabel HDMI 15 Meter (Stok: 12)</option>
-                        <option value="3">Microphone Wireless (Stok: 2)</option>
+                        <!-- Mengambil data barang langsung dari database (dikirim dari Controller) -->
+                        @if(isset($barangs) && count($barangs) > 0)
+                            @foreach($barangs as $barang)
+                                <option value="{{ $barang->id }}">{{ $barang->nama_barang }} (Stok: {{ $barang->stok }})</option>
+                            @endforeach
+                        @else
+                            <option value="" disabled>Belum ada barang di database atau stok habis!</option>
+                        @endif
                     </select>
                 </div>
                 <div class="md:col-span-2 mt-2">
@@ -92,29 +103,65 @@
 </div>
 
 <script>
-    function prosesPinjam(e) {
-        e.preventDefault(); // Mencegah reload halaman
+    async function prosesPinjam(e) {
+        e.preventDefault(); 
         
+        const form = document.getElementById('formPeminjaman');
+        const formData = new FormData(form);
+
+        // Validasi cepat: Pastikan ada barang di database sebelum diproses
+        if (!formData.get('barang_id')) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: 'Kamu harus menambahkan data barang dulu di menu Data Barang!',
+                confirmButtonColor: '#ef4444'
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Memproses Data...',
             text: 'Mendaftarkan siswa dan mengamankan stok barang.',
             icon: 'info',
-            timer: 1500,
-            timerProgressBar: true,
             showConfirmButton: false,
             allowOutsideClick: false,
             didOpen: () => { Swal.showLoading() }
-        }).then(() => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Peminjaman Berhasil!',
-                text: 'Data telah disinkronisasi ke menu Data Siswa dan Data Barang.',
-                confirmButtonColor: '#4f46e5',
-                showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
-                hideClass: { popup: 'animate__animated animate__zoomOut animate__faster' }
-            });
-            document.getElementById('formPeminjaman').reset();
         });
+
+        try {
+            const response = await fetch('/dashboard/pinjam', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Peminjaman Berhasil!',
+                    text: 'Data telah disinkronisasi ke menu Data Siswa dan Data Barang.',
+                    confirmButtonColor: '#4f46e5',
+                    showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
+                    hideClass: { popup: 'animate__animated animate__zoomOut animate__faster' }
+                }).then(() => {
+                    // Refresh halaman otomatis biar angka statistik di atas berubah real-time!
+                    window.location.reload(); 
+                });
+                form.reset();
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Sistem',
+                text: 'Terjadi kesalahan saat menyimpan ke database.',
+                confirmButtonColor: '#ef4444'
+            });
+        }
     }
 </script>
 @endsection
