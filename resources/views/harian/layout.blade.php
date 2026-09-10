@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+    
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { display: none; }
@@ -61,7 +60,7 @@
         taskPriority: 'normal',
         taskDate: 'besok',
 
-        // 4. LOGIKA NABUNG (UANG MASUK) -> DIKEMBALIKAN, KARENA INI NYAWA UI NYA!
+        // 4. LOGIKA NABUNG (UANG MASUK)
         uangStr: '',
         keteranganNabung: '',
         formatRupiah(event) {
@@ -89,74 +88,18 @@
     }" 
     class="bg-gray-50 text-gray-800 h-screen overflow-hidden flex flex-col relative">
 
-    <!-- ========================================== -->
-    <!-- 🏠 AREA BERANDA (DASHBOARD) 🏠 -->
-    <!-- ========================================== -->
-    <main class="flex-1 overflow-y-auto pb-28 p-6 relative">
-        <div class="flex justify-between items-center mb-6 mt-2">
-            <div>
-                <h2 class="text-gray-500 text-xs font-bold tracking-wider uppercase mb-1">Beranda</h2>
-                <h1 class="text-2xl font-extrabold text-gray-900">Halo, Rixsan! <span class="text-emerald-500">✌️</span></h1>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center font-black border-4 border-gray-200 shadow-sm">28</div>
-        </div>
-
-        <!-- SECTION GELEMBUNG CATATAN -->
-        <div class="mb-8">
-            <h3 class="text-sm font-extrabold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-comment-dots text-blue-500 text-lg"></i> Gelembung Ide
-            </h3>
-            <div class="flex gap-4 overflow-x-auto pb-4 pt-2 -mx-2 px-2 snap-x">
-                <template x-for="note in dummyNotes" :key="note.id">
-                    <button @click="bukaGelembung(note)" class="animate-float snap-center shrink-0 w-28 h-28 bubble-shape bg-gradient-to-br shadow-[0_10px_20px_rgba(0,0,0,0.1)] border border-white/60 flex flex-col items-center justify-center p-3 text-white transition-transform active:scale-90" :class="note.color" style="animation-delay: calc(var(--id) * 0.2s);">
-                        <i class="fas text-2xl mb-2 drop-shadow-md" :class="note.icon"></i>
-                        <span class="text-[10px] font-extrabold text-center leading-tight drop-shadow-md truncate w-full" x-text="note.title"></span>
-                    </button>
-                </template>
-                <button @click="activeForm = 'catatan'" class="shrink-0 w-28 h-28 rounded-full border-2 border-dashed border-gray-300 text-gray-400 flex flex-col items-center justify-center hover:bg-gray-100 hover:text-blue-500 transition-colors">
-                    <i class="fas fa-plus text-xl mb-1"></i>
-                    <span class="text-[10px] font-bold">Ide Baru</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- SECTION MISI HARIAN -->
-        <div>
-            <h3 class="text-sm font-extrabold text-gray-800 mb-4 flex items-center gap-2">
-                <i class="fas fa-fire text-orange-500 text-lg"></i> Misi Aktif
-            </h3>
-            <div class="space-y-4">
-                <div class="bg-white rounded-3xl p-5 shadow-sm border border-red-100 relative overflow-hidden group">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500 rounded-l-3xl"></div>
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="inline-block px-2.5 py-1 bg-red-50 text-red-600 text-[9px] font-black uppercase tracking-widest rounded-lg mb-2">Mendesak</span>
-                            <h4 class="font-extrabold text-gray-900 leading-tight">Tugas Kejuruan Web</h4>
-                        </div>
-                        <div class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-300 cursor-pointer hover:border-emerald-500 hover:text-emerald-500 transition-colors"><i class="fas fa-check"></i></div>
-                    </div>
-                    <div class="flex items-center text-xs font-bold text-gray-500 gap-3"><span class="flex items-center gap-1 text-red-500"><i class="fas fa-clock"></i> Hari Ini</span></div>
-                </div>
-                <div class="bg-white rounded-3xl p-5 shadow-sm border border-green-100 relative overflow-hidden">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-green-500 rounded-l-3xl"></div>
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="inline-block px-2.5 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-lg mb-2">Santai</span>
-                            <h4 class="font-extrabold text-gray-900 leading-tight">Revisi Script Bot</h4>
-                        </div>
-                        <div class="w-8 h-8 rounded-full border-2 border-gray-200 flex items-center justify-center text-gray-300 cursor-pointer hover:border-emerald-500 hover:text-emerald-500 transition-colors"><i class="fas fa-check"></i></div>
-                    </div>
-                    <div class="flex items-center text-xs font-bold text-gray-500 gap-3"><span class="flex items-center gap-1"><i class="fas fa-clock"></i> Besok</span></div>
-                </div>
-            </div>
-        </div>
-    </main>
+    <livewire:beranda />
 
     <!-- Bottom Nav -->
     <nav class="fixed bottom-0 w-full px-6 py-4 bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-40">
         <ul class="flex justify-between items-center text-gray-400">
             <li><a href="/harian" class="flex flex-col items-center gap-1.5 text-red-600"><i class="fas fa-home text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Beranda</span></a></li>
-            <li><a href="#" class="flex flex-col items-center gap-1.5 hover:text-red-500"><i class="fas fa-wallet text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Uang</span></a></li>
+            <li>
+    <button type="button" @click="activeForm = 'dompet'" class="flex flex-col items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none">
+        <i class="fas fa-wallet text-xl"></i>
+        <span class="text-[9px] font-bold tracking-widest uppercase">Uang</span>
+    </button>
+</li>
             <li class="-mt-12 relative">
                 <div class="absolute inset-0 bg-red-600 blur-lg opacity-40 rounded-full"></div>
                 <button @click="showAddMenu = true" class="relative flex items-center justify-center w-14 h-14 bg-red-600 rounded-full text-white hover:scale-105 active:scale-95 transition-all shadow-lg">
@@ -239,47 +182,17 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 2. JEROAN: FORM NABUNG (UDAH JADI PORTAL LIVEWIRE!) -->
+    <!-- 2. JEROAN: FORM NABUNG -->
     <!-- ========================================== -->
     <livewire:form-nabung />
 
     <!-- ========================================== -->
     <!-- 3. JEROAN: FORM TUGAS -->
     <!-- ========================================== -->
-    <div x-cloak x-show="activeForm === 'tugas'" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
-        <div x-show="activeForm === 'tugas'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm pointer-events-auto"></div>
-        <div x-show="activeForm === 'tugas'" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="relative w-full h-[90vh] bg-white rounded-t-[2.5rem] shadow-2xl pointer-events-auto flex flex-col">
-            <div class="flex items-center gap-4 p-6 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-white rounded-t-[2.5rem]">
-                <button @click="backToMenu()" class="w-10 h-10 bg-white shadow-sm border border-orange-100 rounded-full text-orange-600 flex items-center justify-center"><i class="fas fa-chevron-left text-lg"></i></button>
-                <div class="flex-1"><h3 class="text-xl font-extrabold text-gray-900">Misi Baru</h3><p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Selesaikan & Dapatkan Piagam</p></div>
-                <i class="fas fa-award text-3xl text-orange-300 opacity-50"></i>
-            </div>
-            <div class="p-6 overflow-y-auto flex-1">
-                <input type="text" placeholder="Tulis tugasmu disini..." class="w-full bg-transparent text-2xl font-extrabold text-gray-900 placeholder-gray-300 focus:outline-none mb-8 border-b-2 border-dashed border-gray-200 pb-3 focus:border-orange-400">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3"><i class="fas fa-fire text-orange-500 mr-1"></i> Seberapa Penting?</label>
-                <div class="grid grid-cols-3 gap-3 mb-8">
-                    <button @click="taskPriority = 'santai'" :class="taskPriority === 'santai' ? 'bg-green-500 text-white shadow-lg border-green-500' : 'bg-white text-gray-400 border-gray-200'" class="py-3 rounded-xl border-2 font-bold text-sm flex flex-col items-center gap-1"><i class="fas fa-coffee"></i> Santai</button>
-                    <button @click="taskPriority = 'normal'" :class="taskPriority === 'normal' ? 'bg-blue-500 text-white shadow-lg border-blue-500' : 'bg-white text-gray-400 border-gray-200'" class="py-3 rounded-xl border-2 font-bold text-sm flex flex-col items-center gap-1"><i class="fas fa-book"></i> Normal</button>
-                    <button @click="taskPriority = 'mendesak'" :class="taskPriority === 'mendesak' ? 'bg-red-500 text-white shadow-lg border-red-500' : 'bg-white text-gray-400 border-gray-200'" class="py-3 rounded-xl border-2 font-bold text-sm flex flex-col items-center gap-1"><i class="fas fa-bolt"></i> Mendesak</button>
-                </div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3"><i class="fas fa-clock text-orange-500 mr-1"></i> Kapan Dikumpulkan?</label>
-                <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-                    <button @click="taskDate = 'hari_ini'" :class="taskDate === 'hari_ini' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-2.5 rounded-full font-bold text-sm whitespace-nowrap">Hari Ini</button>
-                    <button @click="taskDate = 'besok'" :class="taskDate === 'besok' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-2.5 rounded-full font-bold text-sm whitespace-nowrap">Besok</button>
-                    <button @click="taskDate = 'custom'" :class="taskDate === 'custom' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-5 py-2.5 rounded-full font-bold text-sm whitespace-nowrap flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Pilih Tanggal</button>
-                </div>
-                <div x-show="taskDate === 'custom'" x-collapse><input type="date" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 mb-6"></div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mt-4 mb-2"><i class="fas fa-pen text-orange-500 mr-1"></i> Detail (Opsional)</label>
-                <textarea rows="4" placeholder="Misal: Tugas dari Pak Guru..." class="w-full bg-yellow-50/50 border border-yellow-100 rounded-xl py-2 px-4 font-medium text-gray-700 resize-none paper-style"></textarea>
-            </div>
-            <div class="p-6 border-t border-gray-50 bg-white">
-                <button class="w-full bg-orange-500 text-white font-bold text-lg py-4 rounded-2xl flex justify-center items-center gap-2"><i class="fas fa-paper-plane"></i> Tambahkan Misi</button>
-            </div>
-        </div>
-    </div>
+    <livewire:form-tugas />
 
     <!-- ========================================== -->
-    <!-- 4. JEROAN: FORM PENGELUARAN -->
+    <!-- 4. JEROAN: FORM PENGELUARAN (Masih HTML manual, nunggu giliran dibikin Livewire) -->
     <!-- ========================================== -->
     <div x-cloak x-show="activeForm === 'keluar'" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
         <div x-show="activeForm === 'keluar'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm pointer-events-auto"></div>
@@ -324,23 +237,12 @@
     <!-- ========================================== -->
     <!-- 5. JEROAN: FORM CATATAN -->
     <!-- ========================================== -->
-    <div x-cloak x-show="activeForm === 'catatan'" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
-        <div x-show="activeForm === 'catatan'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm pointer-events-auto"></div>
-        <div x-show="activeForm === 'catatan'" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="relative w-full h-[90vh] bg-white rounded-t-[2.5rem] shadow-2xl pointer-events-auto flex flex-col">
-            <div class="flex items-center gap-4 p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white rounded-t-[2.5rem]">
-                <button @click="backToMenu()" class="w-10 h-10 bg-white shadow-sm border border-blue-100 rounded-full text-blue-600 flex items-center justify-center hover:bg-blue-50"><i class="fas fa-chevron-left text-lg"></i></button>
-                <div class="flex-1"><h3 class="text-xl font-extrabold text-gray-900">Catatan Baru</h3><p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Simpan Ide & Rencanamu</p></div>
-                <div class="w-10 h-10 bg-blue-100 text-blue-500 rounded-xl flex items-center justify-center"><i class="fas fa-book-open text-xl"></i></div>
-            </div>
-            <div class="p-6 overflow-y-auto flex-1 flex flex-col">
-                <input type="text" placeholder="Judul Catatan..." class="w-full bg-transparent text-3xl font-extrabold text-gray-900 placeholder-gray-300 focus:outline-none mb-4 pb-2 border-b-2 border-transparent focus:border-blue-400 transition-colors">
-                <textarea placeholder="Mulai mengetik ide cemerlangmu di sini..." class="w-full flex-1 bg-transparent text-gray-700 font-medium text-base resize-none focus:outline-none paper-style p-2"></textarea>
-            </div>
-            <div class="p-6 border-t border-gray-50 bg-white">
-                <button class="w-full bg-blue-600 text-white font-bold text-lg py-4 rounded-2xl flex justify-center items-center gap-2 shadow-[0_10px_20px_rgba(37,99,235,0.2)]"><i class="fas fa-save"></i> Simpan Catatan</button>
-            </div>
-        </div>
-    </div>
+    <livewire:form-catatan />
+
+    <!-- ========================================== -->
+    <!-- 💳 JEROAN: DOMPET DIGITAL PRIBADI -->
+    <!-- ========================================== -->
+    <livewire:dompet-pribadi />
     
     @livewireScripts
 </body>

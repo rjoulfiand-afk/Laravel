@@ -6,27 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-public function up(): void
+    public function up(): void
     {
-        // GANTI 'tasks' JADI 'daily_tasks'
-        Schema::create('daily_tasks', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->date('due_date')->nullable();
-            $table->boolean('is_done')->default(false);
-            $table->timestamp('completed_at')->nullable();
+            $table->foreignId('user_id')->nullable(); // Laci akun
+            $table->string('title');                  // Laci judul tugas
+            $table->string('priority')->nullable();   // Laci tingkat prioritas (santai/normal/mendesak)
+            $table->string('due_date')->nullable();   // Laci tenggat waktu
+            $table->text('detail')->nullable();       // Laci rincian tugas
+            $table->boolean('is_completed')->default(false); // Laci status kelar
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        // INI JUGA GANTI JADI 'daily_tasks'
-        Schema::dropIfExists('daily_tasks');
+        Schema::dropIfExists('tasks');
     }
 };
