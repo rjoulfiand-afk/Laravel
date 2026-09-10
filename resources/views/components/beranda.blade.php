@@ -58,8 +58,10 @@ new class extends Component
             // Ambil 4 Catatan Terbaru
             $this->notes = DB::table('notes')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(4)->get();
 
-            // Hitung Total Uang
-            $this->saldo = DB::table('savings')->where('user_id', $user->id)->sum('amount');
+            // 💰 [UPDATE BARU!] Hitung Total Saldo = Nabung - Pengeluaran
+            $uangMasuk = DB::table('savings')->where('user_id', $user->id)->sum('amount');
+            $uangKeluar = DB::table('expenses')->where('user_id', $user->id)->sum('amount');
+            $this->saldo = $uangMasuk - $uangKeluar;
 
             // Ide #5: Gamifikasi Level & EXP (Dihitung dari rutinitas)
             $totalMisiKelar = DB::table('tasks')->where('user_id', $user->id)->where('is_completed', true)->count();
@@ -69,12 +71,28 @@ new class extends Component
             $this->level = floor($totalExp / 100) + 1;
             $this->exp = $totalExp % 100; // Sisa Persentase ke level berikutnya
 
-            // Ide #3: Mini Terminal Log (Ambil 3 histori nabung/misi terakhir)
-            $histori = DB::table('savings')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(3)->get();
+            // 📜 [UPDATE BARU!] Mini Terminal Log (Gabungan Masuk & Keluar)
+            $logMasuk = DB::table('savings')
+                        ->where('user_id', $user->id)
+                        ->select('amount', 'created_at', DB::raw("'nabung' as tipe"))
+                        ->orderBy('id', 'desc')->limit(3)->get();
+                        
+            $logKeluar = DB::table('expenses')
+                        ->where('user_id', $user->id)
+                        ->select('amount', 'created_at', DB::raw("'keluar' as tipe"))
+                        ->orderBy('id', 'desc')->limit(3)->get();
+            
+            // Gabungin dan urutkan biar yang paling baru ada di atas
+            $semuaLog = $logMasuk->merge($logKeluar)->sortByDesc('created_at')->take(3);
+            
             $this->logs = [];
-            foreach($histori as $h) {
+            foreach($semuaLog as $h) {
                 $time = \Carbon\Carbon::parse($h->created_at)->format('H:i');
-                $this->logs[] = "[$time] > sys.nabung($h->amount) -> OK";
+                if($h->tipe == 'nabung') {
+                    $this->logs[] = "[$time] > sys.nabung($h->amount) -> OK";
+                } else {
+                    $this->logs[] = "[$time] > sys.pay($h->amount) -> OK";
+                }
             }
         }
     }
