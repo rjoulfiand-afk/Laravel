@@ -1,29 +1,55 @@
 @extends('harian.layout')
 
 @section('content')
-    <!-- Header Greeting -->
-    <div class="mb-8 mt-2">
-        <h2 class="text-gray-400 text-sm font-semibold tracking-wider">SELAMAT DATANG,</h2>
-        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-300">
-            Boss Jul!
-        </h1>
+    <!-- Header Rapi -->
+    <div class="flex justify-between items-center mb-8 mt-2">
+        <div>
+            <h2 class="text-gray-500 text-xs font-semibold tracking-wider uppercase mb-1">Overview Harian</h2>
+            <h1 class="text-2xl font-extrabold text-gray-900">
+                Halo, Rixsan! <span class="text-red-600">✌️</span>
+            </h1>
+        </div>
+        <!-- Foto Profil / Inisial -->
+        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 font-bold border border-red-200 shadow-sm">
+            R
+        </div>
     </div>
 
-    <!-- Card Saldo Estetik -->
-    <div class="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-2xl relative overflow-hidden">
-        <!-- Efek Cahaya di pojok card -->
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-violet-500 rounded-full blur-3xl opacity-30"></div>
+    <!-- Card Saldo (Merah Menyala Premium) -->
+    <div class="bg-red-600 rounded-3xl p-6 shadow-[0_15px_30px_rgba(220,38,38,0.25)] relative overflow-hidden mb-8">
+        <!-- Dekorasi Ornamen Lingkaran -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-8 -mb-8"></div>
         
-        <p class="text-gray-300 text-sm mb-1"><i class="fas fa-wallet mr-2"></i>Total Tabungan</p>
-        <h2 class="text-4xl font-bold text-white tracking-tight mb-4">Rp 0</h2>
+        <p class="text-red-100 text-xs font-medium mb-1 flex items-center gap-2">
+            <i class="fas fa-shield-alt"></i> Saldo Tabungan
+        </p>
+        <h2 class="text-4xl font-extrabold text-white tracking-tight mb-6">Rp 0</h2>
         
-        <div class="flex gap-3 mt-4">
-            <button class="flex-1 bg-violet-600 hover:bg-violet-700 text-white py-3 rounded-2xl text-sm font-bold transition">
-                <i class="fas fa-arrow-down mr-2"></i> Masuk
+        <div class="flex gap-3 relative z-10">
+            <!-- Tombol Masuk (Putih) -->
+            <button class="flex-1 bg-white text-red-600 hover:bg-gray-50 py-3 rounded-xl text-sm font-bold shadow-sm transition-all flex justify-center items-center gap-2">
+                <i class="fas fa-arrow-down"></i> Masuk
             </button>
-            <button class="flex-1 bg-white/10 hover:bg-white/20 border border-white/20 text-white py-3 rounded-2xl text-sm font-bold transition">
-                <i class="fas fa-arrow-up mr-2"></i> Keluar
+            <!-- Tombol Keluar (Merah Gelap) -->
+            <button class="flex-1 bg-red-700 text-white hover:bg-red-800 border border-red-500 py-3 rounded-xl text-sm font-bold shadow-sm transition-all flex justify-center items-center gap-2">
+                <i class="fas fa-arrow-up"></i> Keluar
             </button>
         </div>
+    </div>
+
+    <!-- Section Aktivitas -->
+    <div class="mb-4 flex justify-between items-end">
+        <h3 class="text-lg font-bold text-gray-800">Aktivitas Hari Ini</h3>
+        <a href="#" class="text-xs font-bold text-red-600 hover:underline">Lihat Semua</a>
+    </div>
+    
+    <!-- Tampilan Kosong (Empty State) -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+        <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-3">
+            <i class="fas fa-inbox text-2xl"></i>
+        </div>
+        <h4 class="text-gray-800 font-bold mb-1">Belum ada aktivitas</h4>
+        <p class="text-xs text-gray-400">Mulai catat tabungan, tugas, atau pengeluaranmu hari ini.</p>
     </div>
 @endsection
