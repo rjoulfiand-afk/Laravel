@@ -10,13 +10,16 @@ new class extends Component
     public $topTask = null;
     public $saldo = 0;
     
-    // Variabel buat Ide Gila Lu
+    // Variabel Terminal & Gamifikasi
     public $logs = [];
     public $level = 1;
     public $exp = 0;
-    public $targetTabungan = 2500000; // Misal target Upgrade RAM/SSD 2.5 Jt
     public $quote = "";
     public $greeting = "";
+
+    // Variabel Target Dinamis
+    public $targetName = 'Rakit PC';
+    public $targetAmount = 2500000;
 
     public function boot()
     {
@@ -26,14 +29,12 @@ new class extends Component
 
     public function setWaktuDanQuote()
     {
-        // Ide #7: Sapaan Pintar
         $jam = (int) now()->format('H');
         if ($jam >= 5 && $jam < 11) $this->greeting = "Pagi boss! Udah ngopi belum? ☕";
         elseif ($jam >= 11 && $jam < 15) $this->greeting = "Siang Rixsan! Tetep fokus koding ya. 💻";
         elseif ($jam >= 15 && $jam < 18) $this->greeting = "Sore Rixsan! Sby lagi panas, minum es dulu 🧊";
         else $this->greeting = "Malam boss! Waktunya nge-push commit nih 🚀";
 
-        // Ide #9: Daily Quote API (Simulasi)
         $quotes = [
             "Bukan bug, itu fitur yang belum terpecahkan. 👾",
             "Satu baris kode hari ini, satu langkah menuju Pro! 🏆",
@@ -47,7 +48,14 @@ new class extends Component
     {
         $user = User::where('email', 'boss@harian.com')->first();
         if ($user) {
-            // Ide #1: Radar Prioritas (Cuma ambil 1 tugas paling mendesak)
+            // Ambil Data Target dari Database
+            $target = DB::table('targets')->where('user_id', $user->id)->first();
+            if($target) {
+                $this->targetName = $target->name;
+                $this->targetAmount = $target->amount;
+            }
+
+            // Radar Prioritas
             $this->topTask = DB::table('tasks')
                 ->where('user_id', $user->id)
                 ->where('is_completed', false)
@@ -55,34 +63,24 @@ new class extends Component
                 ->orderBy('created_at', 'asc')
                 ->first();
 
-            // Ambil 4 Catatan Terbaru
+            // Notes
             $this->notes = DB::table('notes')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(4)->get();
 
-            // 💰 [UPDATE BARU!] Hitung Total Saldo = Nabung - Pengeluaran
+            // Hitung Saldo
             $uangMasuk = DB::table('savings')->where('user_id', $user->id)->sum('amount');
             $uangKeluar = DB::table('expenses')->where('user_id', $user->id)->sum('amount');
             $this->saldo = $uangMasuk - $uangKeluar;
 
-            // Ide #5: Gamifikasi Level & EXP (Dihitung dari rutinitas)
+            // Gamifikasi
             $totalMisiKelar = DB::table('tasks')->where('user_id', $user->id)->where('is_completed', true)->count();
             $totalNabung = DB::table('savings')->where('user_id', $user->id)->count();
-            
             $totalExp = ($totalMisiKelar * 50) + ($totalNabung * 20);
             $this->level = floor($totalExp / 100) + 1;
-            $this->exp = $totalExp % 100; // Sisa Persentase ke level berikutnya
+            $this->exp = $totalExp % 100;
 
-            // 📜 [UPDATE BARU!] Mini Terminal Log (Gabungan Masuk & Keluar)
-            $logMasuk = DB::table('savings')
-                        ->where('user_id', $user->id)
-                        ->select('amount', 'created_at', DB::raw("'nabung' as tipe"))
-                        ->orderBy('id', 'desc')->limit(3)->get();
-                        
-            $logKeluar = DB::table('expenses')
-                        ->where('user_id', $user->id)
-                        ->select('amount', 'created_at', DB::raw("'keluar' as tipe"))
-                        ->orderBy('id', 'desc')->limit(3)->get();
-            
-            // Gabungin dan urutkan biar yang paling baru ada di atas
+            // Log
+            $logMasuk = DB::table('savings')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'nabung' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
+            $logKeluar = DB::table('expenses')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'keluar' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
             $semuaLog = $logMasuk->merge($logKeluar)->sortByDesc('created_at')->take(3);
             
             $this->logs = [];
@@ -95,6 +93,24 @@ new class extends Component
                 }
             }
         }
+    }
+
+    // Fungsi Update Target Real-time
+    public function simpanTarget($nama, $nominalStr)
+    {
+        $nominal = (int) preg_replace('/[^0-9]/', '', (string) $nominalStr);
+        if ($nominal <= 0 || empty(trim($nama))) return;
+
+        $user = User::where('email', 'boss@harian.com')->first();
+        $target = DB::table('targets')->where('user_id', $user->id)->first();
+
+        if ($target) {
+            DB::table('targets')->where('id', $target->id)->update(['name' => $nama, 'amount' => $nominal, 'updated_at' => now()]);
+        } else {
+            DB::table('targets')->insert(['user_id' => $user->id, 'name' => $nama, 'amount' => $nominal, 'created_at' => now(), 'updated_at' => now()]);
+        }
+
+        $this->muatData(); // Refresh UI langsung!
     }
 
     public function selesaiTugas($id)
@@ -111,95 +127,145 @@ new class extends Component
 };
 ?>
 
-<!-- Auto refresh per 3 detik -->
 <main class="flex-1 overflow-y-auto pb-28 p-6 relative bg-white" wire:poll.3s="muatData">
     
-    <!-- HEADER: Sapaan, Quote & Level Gamifikasi -->
+    <!-- HEADER -->
     <div class="flex justify-between items-start mb-6 mt-2">
         <div class="flex-1 pr-4">
             <h1 class="text-xl font-extrabold text-gray-900 leading-tight">{{ $greeting }}</h1>
             <p class="text-[10px] text-gray-500 font-bold mt-1.5 line-clamp-2">"{{ $quote }}"</p>
         </div>
         
-        <!-- Gamifikasi Level Badge -->
         <div class="flex flex-col items-center">
-            <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black border-4 border-red-100 shadow-md z-10 relative">
+            <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black border-4 border-red-50 shadow-sm z-10 relative">
                 <span class="text-[9px] absolute top-1">LV</span>
                 <span class="text-lg mt-2">{{ $level }}</span>
             </div>
-            <!-- Bar EXP -->
             <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden shadow-inner">
                 <div class="h-full bg-red-500 rounded-full transition-all duration-500" style="width: {{ $exp }}%"></div>
             </div>
         </div>
     </div>
 
-    <!-- KARTU SALDO + GRAFIK DENYUT + PROGRESS BAR TARGET -->
-    <div class="bg-gray-900 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden border border-gray-800">
-        <!-- Ide #6: Grafik Denyut (Sparkline Background) -->
-        <svg class="absolute bottom-4 right-0 w-full h-24 text-red-500/10" preserveAspectRatio="none" viewBox="0 0 100 30" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M0 30 L10 25 L20 28 L30 15 L40 18 L50 5 L60 12 L70 2 L80 10 L90 0 L100 15" />
-        </svg>
-        
-        <!-- Efek Glow Merah -->
-        <div class="absolute top-0 right-0 w-32 h-32 bg-red-600 opacity-20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-        
-        <div class="relative z-10">
-            <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                Total Kas <i class="fas fa-shield-check text-red-500"></i>
-            </p>
-            <h2 class="text-3xl font-black text-white mb-4 tracking-tight">Rp {{ number_format($saldo, 0, ',', '.') }}</h2>
+    <!-- KARTU SALDO MODERN PREMIUM & MODAL EDIT -->
+    <div x-data="{ 
+            editMode: false, 
+            inputNama: '{{ addslashes($targetName) }}', 
+            inputNominal: '{{ number_format($targetAmount, 0, ',', '.') }}',
+            formatUang(e) {
+                let angka = e.target.value.replace(/[^0-9]/g, '');
+                this.inputNominal = angka ? new Intl.NumberFormat('id-ID').format(angka) : '';
+            }
+         }">
+         
+        <!-- Kartu Utama (Desain Clean Elegant) -->
+        <div class="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-[2rem] p-7 shadow-[0_15px_40px_rgba(0,0,0,0.2)] relative overflow-hidden border border-gray-700/50">
+            <!-- Smooth Ambient Glow (Bukan garis tajam) -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <!-- Ide #2: Target Tabungan -->
-            @php $persenTabungan = min(100, round(($saldo / $targetTabungan) * 100)); @endphp
-            <div class="mt-4">
-                <div class="flex justify-between text-[10px] font-bold mb-1.5">
-                    <span class="text-gray-400">Target: Rakit PC (<span class="text-white">Rp {{ number_format($targetTabungan/1000000, 1, ',', '.') }} Jt</span>)</span>
-                    <span class="text-red-400">{{ $persenTabungan }}%</span>
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                        Total Kas <i class="fas fa-shield-check text-emerald-400"></i>
+                    </p>
+                    <i class="fab fa-cc-visa text-gray-600 text-2xl opacity-30"></i>
                 </div>
-                <div class="w-full h-2.5 bg-gray-800 rounded-full overflow-hidden shadow-inner border border-gray-700">
-                    <div class="h-full bg-red-600 rounded-full relative overflow-hidden" style="width: {{ $persenTabungan }}%">
-                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                
+                <h2 class="text-4xl font-black text-white mb-6 tracking-tight drop-shadow-md">
+                    Rp {{ number_format($saldo, 0, ',', '.') }}
+                </h2>
+                
+                <!-- Target Dinamis -->
+                @php 
+                    $persenTabungan = $targetAmount > 0 ? min(100, round(($saldo / $targetAmount) * 100)) : 0; 
+                @endphp
+                
+                <div class="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 relative group">
+                    <div class="flex justify-between items-center mb-2 text-[10px] font-bold">
+                        <span class="text-gray-400">Target: <span class="text-white">{{ $targetName }}</span></span>
+                        
+                        <div class="flex items-center gap-3">
+                            <span class="text-white bg-white/10 px-2 py-0.5 rounded-md">{{ $persenTabungan }}%</span>
+                            <!-- Tombol Edit Muncul pas disentuh/hover -->
+                            <button @click="editMode = true" class="text-gray-400 hover:text-white transition-colors">
+                                <i class="fas fa-pen bg-white/10 p-1.5 rounded-full"></i>
+                            </button>
+                        </div>
                     </div>
+                    
+                    <div class="w-full h-2 bg-gray-900/50 rounded-full overflow-hidden shadow-inner">
+                        <div class="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full relative transition-all duration-1000 ease-out" style="width: {{ $persenTabungan }}%">
+                            <div class="absolute inset-0 bg-white/20 animate-[pulse_2s_ease-in-out_infinite]"></div>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-gray-500 mt-1.5 text-right font-medium tracking-wide">
+                        Sisa Rp {{ number_format(max(0, $targetAmount - $saldo), 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDIT TARGET (Elegan minimalis) -->
+        <div x-cloak x-show="editMode" class="fixed inset-0 z-[100] flex items-center justify-center p-6 pointer-events-none">
+            <div x-show="editMode" x-transition.opacity class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm pointer-events-auto" @click="editMode = false"></div>
+            
+            <div x-show="editMode" 
+                 x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="scale-95 opacity-0" x-transition:enter-end="scale-100 opacity-100"
+                 class="relative w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl pointer-events-auto border border-gray-100">
+                
+                <h3 class="text-lg font-extrabold text-gray-900 mb-4">Ubah Target Tabungan</h3>
+                
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Mimpi Baru Kamu</label>
+                <input type="text" x-model="inputNama" placeholder="Misal: Liburan ke Bali" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-900 focus:outline-none focus:border-red-500 mb-4">
+                
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Butuh Dana Berapa?</label>
+                <div class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 focus-within:border-red-500 bg-gray-50 mb-6">
+                    <span class="text-gray-400 font-bold">Rp</span>
+                    <input type="text" inputmode="numeric" x-model="inputNominal" @input="formatUang($event)" class="w-full bg-transparent py-3 font-bold text-gray-900 focus:outline-none">
+                </div>
+                
+                <div class="flex gap-3">
+                    <button @click="editMode = false" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Batal</button>
+                    <button @click="$wire.simpanTarget(inputNama, inputNominal).then(() => editMode = false)" class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors shadow-lg">Simpan</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Ide #3: MINI TERMINAL LOG -->
-    <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl mt-4 flex flex-col gap-1 font-mono text-[9px] text-green-400 shadow-inner relative overflow-hidden">
-        <div class="absolute inset-0 bg-green-500/5 mix-blend-overlay pointer-events-none"></div>
-        <div class="text-gray-500 mb-1 flex justify-between"><span>root@rixsan:~# tail -n 3 sys.log</span> <span><i class="fas fa-terminal"></i></span></div>
+    <!-- MINI TERMINAL LOG (Agak dilembutkan warnanya) -->
+    <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl mt-4 flex flex-col gap-1 font-mono text-[9px] text-gray-600 relative overflow-hidden">
+        <div class="flex justify-between items-center mb-1">
+            <span class="text-gray-400 font-bold">Aktivitas Terakhir</span>
+            <i class="fas fa-history text-gray-300"></i>
+        </div>
         @forelse($logs as $log)
-            <div>{{ $log }}</div>
+            <div class="text-gray-700"><span class="text-emerald-500 font-bold">✓</span> {{ $log }}</div>
         @empty
-            <div class="text-gray-600">Waiting for system input...</div>
+            <div class="text-gray-400">Belum ada transaksi...</div>
         @endforelse
-        <div class="animate-pulse font-bold">_</div>
     </div>
 
-    <!-- Ide #1: RADAR PRIORITAS (Cuma 1 Tugas!) -->
+    <!-- RADAR PRIORITAS -->
     <div class="mt-8">
         <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2">
                 <div class="w-1.5 h-4 bg-red-600 rounded-full animate-pulse"></div>
                 <h3 class="text-sm font-extrabold text-gray-900">Radar Prioritas</h3>
             </div>
-            <!-- Link ke menu tugas lengkap -->
-            <span class="text-[10px] font-bold text-gray-400">Lihat Semua <i class="fas fa-arrow-right"></i></span>
+            <span class="text-[10px] font-bold text-gray-400 cursor-pointer hover:text-red-500">Lihat Semua <i class="fas fa-arrow-right"></i></span>
         </div>
         
         @if(!$topTask)
-            <div class="p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center text-xs font-bold text-gray-400 flex flex-col items-center gap-2">
-                <i class="fas fa-satellite-dish text-2xl text-gray-300"></i>
-                Radar bersih. Ngga ada misi mendesak boss!
+            <div class="p-5 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center flex flex-col items-center gap-2">
+                <i class="fas fa-mug-hot text-2xl text-gray-300"></i>
+                <p class="text-xs font-bold text-gray-400">Ngga ada misi mendesak boss!</p>
             </div>
         @else
-            <div class="bg-white rounded-2xl p-4 shadow-[0_5px_15px_rgba(220,38,38,0.08)] border border-red-100 flex items-center justify-between gap-3 relative overflow-hidden group">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between gap-3 relative overflow-hidden group hover:border-red-200 transition-colors">
                 <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
-                
                 <div class="flex items-center gap-3 flex-1 overflow-hidden">
-                    <button wire:click="selesaiTugas({{ $topTask->id }})" class="shrink-0 w-7 h-7 rounded border-2 border-gray-200 flex items-center justify-center text-transparent hover:border-red-600 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer">
+                    <button wire:click="selesaiTugas({{ $topTask->id }})" class="shrink-0 w-7 h-7 rounded border-2 border-gray-200 flex items-center justify-center text-transparent hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer">
                         <i class="fas fa-check text-[10px]"></i>
                     </button>
                     <div class="flex-1 min-w-0">
@@ -214,7 +280,7 @@ new class extends Component
         @endif
     </div>
 
-    <!-- Ide #4: GELEMBUNG DINAMIS PASTEL -->
+    <!-- QUICK NOTES -->
     <div class="mt-8">
         <h3 class="text-sm font-extrabold text-gray-900 mb-4 flex items-center gap-2">
             <i class="fas fa-bolt text-red-600 text-lg"></i> Quick Notes
@@ -225,7 +291,6 @@ new class extends Component
         @else
             <div class="flex gap-3 overflow-x-auto pb-4 pt-1 snap-x -mx-2 px-2">
                 @php 
-                    // Mapping warna dinamis elegan tapi tetap ada nuansa putih/pastel
                     $themes = [
                         ['bg' => 'bg-red-50', 'text' => 'text-red-600', 'border' => 'border-red-100'],
                         ['bg' => 'bg-slate-50', 'text' => 'text-slate-600', 'border' => 'border-slate-200'],
@@ -233,7 +298,6 @@ new class extends Component
                         ['bg' => 'bg-gray-50', 'text' => 'text-gray-900', 'border' => 'border-gray-200'],
                     ];
                 @endphp
-                
                 @foreach($notes as $index => $note)
                     @php $theme = $themes[$index % 4]; @endphp
                     <div class="snap-start shrink-0 w-36 {{ $theme['bg'] }} rounded-2xl p-4 border {{ $theme['border'] }} relative group transition-all">
