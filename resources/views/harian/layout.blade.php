@@ -31,12 +31,21 @@
 </head>
 
 <body x-data="{ 
-        // 1. LOGIKA MENU BAWAH
+        // 1. LOGIKA MENU BAWAH & PLUS
         showAddMenu: false, 
         activeForm: '',
+        
         backToMenu() {
-            this.activeForm = ''; 
-            setTimeout(() => this.showAddMenu = true, 300);
+            // Kita kasih tahu sistem: Mana aja form yang asalnya dari tombol Plus (+)
+            let dariPlusMenu = ['nabung', 'keluar', 'tugas', 'catatan'].includes(this.activeForm);
+            
+            this.activeForm = ''; // Tutup form apapun yang lagi aktif
+            
+            // Kalau formnya dari menu Plus, balikin ke menu Plus (delay dikit biar smooth)
+            if (dariPlusMenu) {
+                setTimeout(() => this.showAddMenu = true, 300);
+            } 
+            // Kalau dari menu Nav bawah (kayak dompet / daftar-tugas), dia bakal otomatis diem di Beranda!
         },
 
         // 2. LOGIKA GELEMBUNG CATATAN
@@ -106,7 +115,12 @@
                     <i class="fas fa-plus text-2xl transition-transform duration-300" :class="{'rotate-45': showAddMenu}"></i>
                 </button>
             </li>
-            <li><a href="#" class="flex flex-col items-center gap-1.5 hover:text-red-500"><i class="fas fa-clipboard-list text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Tugas</span></a></li>
+            <li>
+    <button type="button" @click="activeForm = 'daftar-tugas'" class="flex flex-col items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none">
+        <i class="fas fa-clipboard-list text-xl"></i>
+        <span class="text-[9px] font-bold tracking-widest uppercase">Tugas</span>
+    </button>
+            </li>
             <li><a href="#" class="flex flex-col items-center gap-1.5 hover:text-red-500"><i class="fas fa-robot text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Asisten</span></a></li>
         </ul>
     </nav>
@@ -196,6 +210,11 @@
     <!-- 5. JEROAN: FORM CATATAN -->
     <!-- ========================================== -->
     <livewire:form-catatan />
+
+    <!-- ========================================== -->
+    <!-- 📋 JEROAN: DAFTAR TUGAS (MARKAS MISI) -->
+    <!-- ========================================== -->
+    <livewire:daftar-tugas />
 
     <!-- ========================================== -->
     <!-- 💳 JEROAN: DOMPET DIGITAL PRIBADI -->
