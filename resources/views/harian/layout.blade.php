@@ -106,7 +106,7 @@
             <li>
     <button type="button" @click="activeForm = 'dompet'" class="flex flex-col items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none">
         <i class="fas fa-wallet text-xl"></i>
-        <span class="text-[9px] font-bold tracking-widest uppercase">Uang</span>
+        <span class="text-[9px] font-bold tracking-widest uppercase">Dompet</span>
     </button>
 </li>
             <li class="-mt-12 relative">
@@ -116,9 +116,9 @@
                 </button>
             </li>
             <li>
-    <button type="button" @click="activeForm = 'daftar-tugas'" class="flex flex-col items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none">
-        <i class="fas fa-clipboard-list text-xl"></i>
-        <span class="text-[9px] font-bold tracking-widest uppercase">Tugas</span>
+    <button type="button" @click="activeForm = 'portal'" class="flex flex-col items-center gap-1.5 hover:text-red-500 transition-colors focus:outline-none">
+        <i class="fas fa-rocket text-xl"></i>
+        <span class="text-[9px] font-bold tracking-widest uppercase">Portal</span>
     </button>
             </li>
             <li><a href="#" class="flex flex-col items-center gap-1.5 hover:text-red-500"><i class="fas fa-robot text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Asisten</span></a></li>
@@ -196,23 +196,15 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 2. JEROAN: FORM NABUNG -->
+    <!-- JEROAN FORM BAWAAN MENU PLUS (+) -->
     <!-- ========================================== -->
     <livewire:form-nabung />
-
-    <!-- ========================================== -->
-    <!-- 3. JEROAN: FORM TUGAS -->
-    <!-- ========================================== -->
-    <livewire:form-tugas />
-
     <livewire:form-keluar />
-    <!-- ========================================== -->
-    <!-- 5. JEROAN: FORM CATATAN -->
-    <!-- ========================================== -->
+    <livewire:form-tugas />
     <livewire:form-catatan />
 
     <!-- ========================================== -->
-    <!-- 📋 JEROAN: DAFTAR TUGAS (MARKAS MISI) -->
+    <!-- 📋 JEROAN: DAFTAR TUGAS (MARKAS MISI) --> <!-- INI YANG KEMAREN KECABUT WKWK -->
     <!-- ========================================== -->
     <livewire:daftar-tugas />
 
@@ -220,7 +212,17 @@
     <!-- 💳 JEROAN: DOMPET DIGITAL PRIBADI -->
     <!-- ========================================== -->
     <livewire:dompet-pribadi />
-    
+
+    <!-- ========================================== -->
+    <!-- 🚀 JEROAN: PORTAL (SHORTCUT & LEMARI LINK) -->
+    <!-- ========================================== -->
+    <livewire:portal-hub />
+
+    <!-- ========================================== -->
+    <!-- 🎭 JEROAN: PROFIL 3D (JULL & MICKHAYLA) -->
+    <!-- ========================================== -->
+    <livewire:profil-user />
+
     @livewireScripts
 </body>
 </html>

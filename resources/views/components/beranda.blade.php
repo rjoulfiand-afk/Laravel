@@ -15,7 +15,11 @@ new class extends Component
     public $level = 1;
     public $exp = 0;
     public $quote = "";
-    public $greeting = "";
+
+    // Variabel Rank / Piala
+    public $rankTitle = 'Novice';
+    public $rankColor = 'text-orange-400';
+    public $rankIcon = 'fa-medal';
 
     // Variabel Target Dinamis
     public $targetName = 'Rakit PC';
@@ -23,18 +27,12 @@ new class extends Component
 
     public function boot()
     {
-        $this->setWaktuDanQuote();
+        $this->setQuote();
         $this->muatData();
     }
 
-    public function setWaktuDanQuote()
+    public function setQuote()
     {
-        $jam = (int) now()->format('H');
-        if ($jam >= 5 && $jam < 11) $this->greeting = "Pagi boss! Udah ngopi belum? ☕";
-        elseif ($jam >= 11 && $jam < 15) $this->greeting = "Siang Rixsan! Tetep fokus koding ya. 💻";
-        elseif ($jam >= 15 && $jam < 18) $this->greeting = "Sore Rixsan! Sby lagi panas, minum es dulu 🧊";
-        else $this->greeting = "Malam boss! Waktunya nge-push commit nih 🚀";
-
         $quotes = [
             "Bukan bug, itu fitur yang belum terpecahkan. 👾",
             "Satu baris kode hari ini, satu langkah menuju Pro! 🏆",
@@ -48,37 +46,56 @@ new class extends Component
     {
         $user = User::where('email', 'boss@harian.com')->first();
         if ($user) {
-            // Ambil Data Target dari Database
             $target = DB::table('targets')->where('user_id', $user->id)->first();
             if($target) {
                 $this->targetName = $target->name;
                 $this->targetAmount = $target->amount;
             }
 
-            // Radar Prioritas
             $this->topTask = DB::table('tasks')
                 ->where('user_id', $user->id)
                 ->where('is_completed', false)
-                ->orderByRaw("CASE WHEN priority = 'mendesak' THEN 1 WHEN priority = 'normal' THEN 2 ELSE 3 END")
+                ->where(function($query) {
+                    $query->where('priority', 'mendesak')
+                          ->orWhere('due_date', 'hari_ini')
+                          ->orWhere('due_date', 'hari ini');
+                })
                 ->orderBy('created_at', 'asc')
                 ->first();
 
-            // Notes
-            $this->notes = DB::table('notes')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(4)->get();
+            $this->notes = DB::table('notes')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(12)->get();
 
-            // Hitung Saldo
             $uangMasuk = DB::table('savings')->where('user_id', $user->id)->sum('amount');
             $uangKeluar = DB::table('expenses')->where('user_id', $user->id)->sum('amount');
             $this->saldo = $uangMasuk - $uangKeluar;
 
-            // Gamifikasi
+            // 🌟 LOGIKA GAMIFIKASI & PIALA
             $totalMisiKelar = DB::table('tasks')->where('user_id', $user->id)->where('is_completed', true)->count();
             $totalNabung = DB::table('savings')->where('user_id', $user->id)->count();
+            
             $totalExp = ($totalMisiKelar * 50) + ($totalNabung * 20);
             $this->level = floor($totalExp / 100) + 1;
             $this->exp = $totalExp % 100;
 
-            // Log
+            // Penentuan Title & Piala berdasarkan Level
+            if ($this->level >= 15) {
+                $this->rankTitle = 'Legend';
+                $this->rankColor = 'text-yellow-500';
+                $this->rankIcon = 'fa-trophy';
+            } elseif ($this->level >= 10) {
+                $this->rankTitle = 'Pro Dev';
+                $this->rankColor = 'text-purple-500';
+                $this->rankIcon = 'fa-crown';
+            } elseif ($this->level >= 5) {
+                $this->rankTitle = 'Hustler';
+                $this->rankColor = 'text-blue-500';
+                $this->rankIcon = 'fa-star';
+            } else {
+                $this->rankTitle = 'Novice';
+                $this->rankColor = 'text-orange-500';
+                $this->rankIcon = 'fa-medal';
+            }
+
             $logMasuk = DB::table('savings')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'nabung' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
             $logKeluar = DB::table('expenses')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'keluar' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
             $semuaLog = $logMasuk->merge($logKeluar)->sortByDesc('created_at')->take(3);
@@ -95,7 +112,6 @@ new class extends Component
         }
     }
 
-    // Fungsi Update Target Real-time
     public function simpanTarget($nama, $nominalStr)
     {
         $nominal = (int) preg_replace('/[^0-9]/', '', (string) $nominalStr);
@@ -109,8 +125,7 @@ new class extends Component
         } else {
             DB::table('targets')->insert(['user_id' => $user->id, 'name' => $nama, 'amount' => $nominal, 'created_at' => now(), 'updated_at' => now()]);
         }
-
-        $this->muatData(); // Refresh UI langsung!
+        $this->muatData();
     }
 
     public function selesaiTugas($id)
@@ -127,24 +142,73 @@ new class extends Component
 };
 ?>
 
+<style>
+    .premium-scroll::-webkit-scrollbar { height: 6px; }
+    .premium-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+    .premium-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .premium-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .premium-scroll { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+</style>
+
 <main class="flex-1 overflow-y-auto pb-28 p-6 relative bg-white" wire:poll.3s="muatData">
     
-    <!-- HEADER -->
-    <div class="flex justify-between items-start mb-6 mt-2">
+    <!-- HEADER: OTAK JAM REALTIME & PROFIL GAMIFIKASI -->
+    <div x-data="{
+        waktu: '',
+        sapaan: '',
+        updateJam() {
+            const now = new Date();
+            const h = now.getHours();
+            const m = now.getMinutes().toString().padStart(2, '0');
+            this.waktu = h.toString().padStart(2, '0') + ':' + m;
+            
+            if (h >= 5 && h < 11) this.sapaan = 'Pagi boss! Udah ngopi belum? ☕';
+            else if (h >= 11 && h < 15) this.sapaan = 'Siang Rixsan! Tetep fokus koding ya. 💻';
+            else if (h >= 15 && h < 18) this.sapaan = 'Sore Rixsan! Sby lagi panas, minum es dulu 🧊';
+            else this.sapaan = 'Malam boss! Waktunya nge-push commit nih 🚀';
+        }
+    }" x-init="updateJam(); setInterval(() => updateJam(), 1000)" class="flex justify-between items-start mb-6 mt-2">
+        
         <div class="flex-1 pr-4">
-            <h1 class="text-xl font-extrabold text-gray-900 leading-tight">{{ $greeting }}</h1>
+            <h1 class="text-xl font-extrabold text-gray-900 leading-tight" x-text="sapaan"></h1>
             <p class="text-[10px] text-gray-500 font-bold mt-1.5 line-clamp-2">"{{ $quote }}"</p>
+            
+            <div class="mt-3 inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]"></div>
+                <span class="font-mono text-xs font-black text-gray-800 tracking-widest" x-text="waktu"></span>
+                <span class="text-[8px] font-black uppercase tracking-widest text-gray-400">Lokal</span>
+            </div>
         </div>
         
-        <div class="flex flex-col items-center">
-            <div class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black border-4 border-red-50 shadow-sm z-10 relative">
-                <span class="text-[9px] absolute top-1">LV</span>
-                <span class="text-lg mt-2">{{ $level }}</span>
+        <!-- 🌟 PROFIL & GAMIFIKASI WIDGET 🌟 -->
+        <!-- Tombol ini udah disiapin buat ngebuka halaman profil nantinya -->
+        <button @click="activeForm = 'profil'" class="flex flex-col items-center group cursor-pointer relative z-10 focus:outline-none">
+            
+            <!-- Trophy / Rank Badge (Muncul melayang) -->
+            <div class="absolute -top-3 bg-white px-2 py-0.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-1 z-20 group-hover:-translate-y-1 transition-transform">
+                <i class="fas {{ $rankIcon }} {{ $rankColor }} text-[8px]"></i>
+                <span class="text-[8px] font-black text-gray-700 tracking-wider">{{ $rankTitle }}</span>
             </div>
-            <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden shadow-inner">
-                <div class="h-full bg-red-500 rounded-full transition-all duration-500" style="width: {{ $exp }}%"></div>
+
+            <!-- Foto Profil & Level Badge -->
+            <div class="relative mt-2">
+                <!-- Ring Progress / Glow luar -->
+                <div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-red-500 to-orange-400 shadow-md group-hover:scale-105 transition-all">
+                    <!-- Avatar UI Otomatis -->
+                    <img src="https://ui-avatars.com/api/?name=Rixsan&background=1f2937&color=fff&bold=true" alt="Profil" class="w-full h-full rounded-full border-2 border-white object-cover bg-gray-100">
+                </div>
+
+                <!-- Level Badge kecil di pojok foto -->
+                <div class="absolute -bottom-1 -right-1 bg-red-600 text-white w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                    <span class="text-[9px] font-black">{{ $level }}</span>
+                </div>
             </div>
-        </div>
+
+            <!-- Bar Stamina / EXP di bawah foto -->
+            <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-3 overflow-hidden shadow-inner relative">
+                <div class="h-full bg-gradient-to-r from-red-500 to-orange-400 rounded-full transition-all duration-700 ease-out" style="width: {{ $exp }}%"></div>
+            </div>
+        </button>
     </div>
 
     <!-- KARTU SALDO MODERN PREMIUM & MODAL EDIT -->
@@ -158,9 +222,7 @@ new class extends Component
             }
          }">
          
-        <!-- Kartu Utama (Desain Clean Elegant) -->
         <div class="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-[2rem] p-7 shadow-[0_15px_40px_rgba(0,0,0,0.2)] relative overflow-hidden border border-gray-700/50">
-            <!-- Smooth Ambient Glow (Bukan garis tajam) -->
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
@@ -176,7 +238,6 @@ new class extends Component
                     Rp {{ number_format($saldo, 0, ',', '.') }}
                 </h2>
                 
-                <!-- Target Dinamis -->
                 @php 
                     $persenTabungan = $targetAmount > 0 ? min(100, round(($saldo / $targetAmount) * 100)) : 0; 
                 @endphp
@@ -187,7 +248,6 @@ new class extends Component
                         
                         <div class="flex items-center gap-3">
                             <span class="text-white bg-white/10 px-2 py-0.5 rounded-md">{{ $persenTabungan }}%</span>
-                            <!-- Tombol Edit Muncul pas disentuh/hover -->
                             <button @click="editMode = true" class="text-gray-400 hover:text-white transition-colors">
                                 <i class="fas fa-pen bg-white/10 p-1.5 rounded-full"></i>
                             </button>
@@ -206,7 +266,6 @@ new class extends Component
             </div>
         </div>
 
-        <!-- MODAL EDIT TARGET (Elegan minimalis) -->
         <div x-cloak x-show="editMode" class="fixed inset-0 z-[100] flex items-center justify-center p-6 pointer-events-none">
             <div x-show="editMode" x-transition.opacity class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm pointer-events-auto" @click="editMode = false"></div>
             
@@ -233,7 +292,7 @@ new class extends Component
         </div>
     </div>
 
-    <!-- MINI TERMINAL LOG (Agak dilembutkan warnanya) -->
+    <!-- MINI TERMINAL LOG -->
     <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl mt-4 flex flex-col gap-1 font-mono text-[9px] text-gray-600 relative overflow-hidden">
         <div class="flex justify-between items-center mb-1">
             <span class="text-gray-400 font-bold">Aktivitas Terakhir</span>
@@ -250,29 +309,43 @@ new class extends Component
     <div class="mt-8">
         <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2">
-                <div class="w-1.5 h-4 bg-red-600 rounded-full animate-pulse"></div>
+                <div class="w-1.5 h-4 bg-red-600 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
                 <h3 class="text-sm font-extrabold text-gray-900">Radar Prioritas</h3>
             </div>
-            <span class="text-[10px] font-bold text-gray-400 cursor-pointer hover:text-red-500">Lihat Semua <i class="fas fa-arrow-right"></i></span>
+            <button @click="activeForm = 'daftar-tugas'" class="text-[10px] font-bold text-gray-400 cursor-pointer hover:text-red-500 flex items-center gap-1">
+                Lihat Semua <i class="fas fa-chevron-right text-[8px] mt-0.5"></i>
+            </button>
         </div>
         
         @if(!$topTask)
             <div class="p-5 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center flex flex-col items-center gap-2">
-                <i class="fas fa-mug-hot text-2xl text-gray-300"></i>
-                <p class="text-xs font-bold text-gray-400">Ngga ada misi mendesak boss!</p>
+                <i class="fas fa-shield-alt text-2xl text-gray-300"></i>
+                <p class="text-xs font-bold text-gray-400">Aman boss! Ngga ada misi darurat.</p>
             </div>
         @else
-            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between gap-3 relative overflow-hidden group hover:border-red-200 transition-colors">
-                <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
-                <div class="flex items-center gap-3 flex-1 overflow-hidden">
-                    <button wire:click="selesaiTugas({{ $topTask->id }})" class="shrink-0 w-7 h-7 rounded border-2 border-gray-200 flex items-center justify-center text-transparent hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer">
+            <div x-data="{ konfirmasi: false }" class="bg-red-50/30 rounded-2xl p-4 shadow-sm border border-red-100 relative overflow-hidden group transition-all">
+                <div x-cloak x-show="konfirmasi" x-transition.opacity.duration.200ms class="absolute inset-0 bg-white/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center gap-2 rounded-2xl border border-red-100">
+                    <span class="font-extrabold text-gray-800 text-xs mb-1">Yakin tugas ini udah kelar bro? 🤔</span>
+                    <div class="flex gap-3">
+                        <button @click="konfirmasi = false" class="px-4 py-1.5 bg-gray-100 text-gray-500 font-bold text-[10px] rounded-lg hover:bg-gray-200 transition-colors">Batal</button>
+                        <button wire:click="selesaiTugas({{ $topTask->id }})" class="px-4 py-1.5 bg-red-500 text-white font-bold text-[10px] rounded-lg shadow-md hover:bg-red-600 transition-colors">Yakin, Sikat!</button>
+                    </div>
+                </div>
+
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500 animate-pulse"></div>
+                
+                <div class="flex items-center gap-3 flex-1 pl-2">
+                    <button @click="konfirmasi = true" class="shrink-0 w-8 h-8 rounded-full border-2 border-red-200 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer bg-white shadow-sm">
                         <i class="fas fa-check text-[10px]"></i>
                     </button>
+                    
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-gray-900 text-sm truncate">{{ $topTask->title }}</h4>
+                        <h4 class="font-extrabold text-red-900 text-sm truncate">{{ $topTask->title }}</h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[8px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100"><i class="fas fa-fire mr-0.5"></i> {{ $topTask->priority ?: 'Normal' }}</span>
-                            <span class="text-[9px] font-bold text-gray-500 truncate"><i class="far fa-clock mr-0.5"></i> {{ str_replace('_', ' ', $topTask->due_date) ?: 'Kapan aja' }}</span>
+                            <span class="text-[8px] font-black uppercase tracking-widest text-white bg-red-500 px-1.5 py-0.5 rounded shadow-sm">
+                                <i class="fas fa-fire mr-0.5"></i> {{ $topTask->priority ?: 'Normal' }}
+                            </span>
+                            <span class="text-[9px] font-bold text-red-500 truncate"><i class="far fa-clock mr-0.5"></i> {{ str_replace('_', ' ', $topTask->due_date) ?: 'Kapan aja' }}</span>
                         </div>
                     </div>
                 </div>
@@ -280,7 +353,7 @@ new class extends Component
         @endif
     </div>
 
-    <!-- QUICK NOTES -->
+    <!-- QUICK NOTES DENGAN PREMIUM SCROLL -->
     <div class="mt-8">
         <h3 class="text-sm font-extrabold text-gray-900 mb-4 flex items-center gap-2">
             <i class="fas fa-bolt text-red-600 text-lg"></i> Quick Notes
@@ -289,7 +362,7 @@ new class extends Component
         @if(count($notes) == 0)
             <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center text-xs font-semibold text-gray-400">Belum ada ide tersimpan.</div>
         @else
-            <div class="flex gap-3 overflow-x-auto pb-4 pt-1 snap-x -mx-2 px-2">
+            <div class="flex gap-3 overflow-x-auto pb-4 pt-1 snap-x -mx-2 px-2 premium-scroll">
                 @php 
                     $themes = [
                         ['bg' => 'bg-red-50', 'text' => 'text-red-600', 'border' => 'border-red-100'],

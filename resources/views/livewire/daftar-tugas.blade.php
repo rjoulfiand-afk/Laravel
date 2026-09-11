@@ -51,19 +51,24 @@ new class extends Component
 ?>
 
 <div>
-    <!-- Overlay & Bottom Sheet -->
-    <div x-cloak x-show="activeForm === 'daftar-tugas'" class="fixed inset-0 z-[80] flex items-end justify-center pointer-events-none">
-        <div x-show="activeForm === 'daftar-tugas'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/70 backdrop-blur-sm pointer-events-auto"></div>
+    <!-- Overlay Transparan -->
+    <div x-cloak x-show="activeForm === 'daftar-tugas'" class="fixed inset-0 z-[80] flex justify-end pointer-events-none">
+        <div x-show="activeForm === 'daftar-tugas'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm pointer-events-auto"></div>
         
+        <!-- PANEL GESER DARI KANAN (IPHONE STYLE) -->
         <div x-show="activeForm === 'daftar-tugas'" 
-             x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" 
-             x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" 
-             class="relative w-full h-[90vh] bg-gray-50 rounded-t-[2.5rem] shadow-2xl pointer-events-auto flex flex-col overflow-hidden">
+             x-transition:enter="transition ease-out duration-300 transform" 
+             x-transition:enter-start="translate-x-full" 
+             x-transition:enter-end="translate-x-0" 
+             x-transition:leave="transition ease-in duration-200 transform" 
+             x-transition:leave-start="translate-x-0" 
+             x-transition:leave-end="translate-x-full" 
+             class="relative w-full h-screen bg-gray-50 shadow-2xl pointer-events-auto flex flex-col overflow-hidden">
             
-            <!-- HEADER -->
-            <div class="flex items-center gap-4 p-6 border-b border-gray-200 bg-white relative z-10">
+            <!-- HEADER (Tombol Back Panah Kiri) -->
+            <div class="flex items-center gap-4 p-6 border-b border-gray-200 bg-white relative z-10 pt-10"> <!-- Ditambah pt-10 biar ga nabrak notch HP -->
                 <button type="button" @click="backToMenu()" class="w-10 h-10 bg-gray-50 border border-gray-200 rounded-full text-gray-600 flex items-center justify-center hover:bg-gray-100 transition-colors">
-                    <i class="fas fa-chevron-down text-lg"></i>
+                    <i class="fas fa-chevron-left text-lg"></i>
                 </button>
                 <div class="flex-1">
                     <h3 class="text-xl font-extrabold text-gray-900">Markas Misi</h3>
