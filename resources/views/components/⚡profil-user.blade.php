@@ -216,7 +216,7 @@ new class extends Component
 
                 <div class="profile-info">
                     <h1 class="web-title">
-                        julljhha 
+                        jull 
                         <i class="fas fa-check-circle verified-badge" title="Verified Dev"></i>
                     </h1>
                     <p class="web-subtitle">
@@ -244,8 +244,10 @@ new class extends Component
                         @for($i=1; $i<=5; $i++)
                         <div class="gallery-card">
                             <i class="fas fa-code gallery-logo-pin" style="color:rgba(255,255,255,0.7);"></i>
-                            <!-- HAPUS NANTI: Ganti URL img ini pakai foto gunung/dev lu boss -->
-                            <img src="https://ui-avatars.com/api/?name=Jull+{{$i}}&background=e74c3c&color=fff&size=400" class="gallery-img" alt="Jull {{$i}}">
+                            
+                            <!-- SIHIR PEMANGGIL FOTO JULL DARI FOLDER PUBLIC -->
+                            <img src="{{ asset('images/profil/jul' . $i . '.jpg') }}" class="gallery-img" alt="Jull {{$i}}">
+                            
                             <div class="gallery-counter"><i class="fas fa-laptop-code" style="color:var(--dev-main);"></i> {{$i}} / 5</div>
                         </div>
                         @endfor
@@ -259,8 +261,8 @@ new class extends Component
                     </div>
 
                     <div class="btn-stack">
-                        <button type="button" class="btn-pro btn-dev-gradient" onclick="window.open('https://instagram.com/rjoulfiand-afk', '_blank')">
-                            <i class="fab fa-instagram" style="font-size:20px;"></i> Follow @rjoulfiand-afk
+                        <button type="button" class="btn-pro btn-dev-gradient" onclick="window.open('https://www.instagram.com/julljhaa?stkn=MWl1c2c0amhvYTZvZg==', '_blank')">
+                            <i class="fab fa-instagram" style="font-size:20px;"></i> Follow @julljhaa
                         </button>
                     </div>
                 </div>
@@ -276,7 +278,7 @@ new class extends Component
 
                 <div class="profile-info">
                     <h1 class="web-title">
-                        mickhayla 
+                        Mickhayla 
                         <i class="fas fa-check-circle verified-badge" title="Queen"></i>
                     </h1>
                     <p class="web-subtitle">
@@ -319,8 +321,8 @@ new class extends Component
                     </div>
 
                     <div class="btn-stack">
-                        <button type="button" class="btn-pro btn-pink-gradient" onclick="window.open('https://instagram.com/mickhayla', '_blank')">
-                            <i class="fab fa-instagram" style="font-size:20px;"></i> Follow @mickhayla
+                        <button type="button" class="btn-pro btn-pink-gradient" onclick="window.open('https://www.instagram.com/k_m_a27?stkn=MXMxaGdudW11d3lkeg==', '_blank')">
+                            <i class="fab fa-instagram" style="font-size:20px;"></i> Follow @k_m_a27
                         </button>
                     </div>
                 </div>

@@ -182,7 +182,7 @@ new class extends Component
         
         <!-- 🌟 PROFIL & GAMIFIKASI WIDGET 🌟 -->
         <!-- Tombol ini udah disiapin buat ngebuka halaman profil nantinya -->
-        <button @click="activeForm = 'profil'" class="flex flex-col items-center group cursor-pointer relative z-10 focus:outline-none">
+        <button @click="activeForm = 'menu-profil'" class="flex flex-col items-center group cursor-pointer relative z-10 focus:outline-none">
             
             <!-- Trophy / Rank Badge (Muncul melayang) -->
             <div class="absolute -top-3 bg-white px-2 py-0.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-1 z-20 group-hover:-translate-y-1 transition-transform">
