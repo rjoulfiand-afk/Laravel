@@ -145,8 +145,8 @@ new class extends Component
 </style>
 
 <!-- WRAPPER UTAMA ALPINE -->
-<div x-cloak x-show="activeForm === 'profil'" class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none profil-wrapper"
-     x-data="{ 
+<div x-data="{ 
+         buka3D: false,
          flipped: false, levitate: false, exiting: false,
          isDown: false, startX: 0, scrollLeft: 0,
          
@@ -168,27 +168,19 @@ new class extends Component
          },
          
          flipToQueen() {
-             this.levitate = true;
-             setTimeout(() => { this.flipped = true; }, 300);
-             setTimeout(() => { this.levitate = false; }, 1000);
+             this.levitate = true; setTimeout(() => { this.flipped = true; }, 300); setTimeout(() => { this.levitate = false; }, 1000);
          },
          flipToDev() {
-             this.levitate = true;
-             setTimeout(() => { this.flipped = false; setTimeout(() => this.startHackerTyping(), 300); }, 300);
-             setTimeout(() => { this.levitate = false; }, 1000);
+             this.levitate = true; setTimeout(() => { this.flipped = false; setTimeout(() => this.startHackerTyping(), 300); }, 300); setTimeout(() => { this.levitate = false; }, 1000);
          },
 
          startDrag(e, el) { this.isDown = true; el.classList.add('active'); this.startX = (e.pageX || e.touches[0].pageX) - el.offsetLeft; this.scrollLeft = el.scrollLeft; },
          stopDrag(el) { this.isDown = false; el.classList.remove('active'); },
-         doDrag(e, el) { 
-             if(!this.isDown) return; 
-             e.preventDefault(); 
-             const x = (e.pageX || e.touches[0].pageX) - el.offsetLeft; 
-             const walk = (x - this.startX) * 1.5; 
-             el.scrollLeft = this.scrollLeft - walk; 
-         }
+         doDrag(e, el) { if(!this.isDown) return; e.preventDefault(); const x = (e.pageX || e.touches[0].pageX) - el.offsetLeft; const walk = (x - this.startX) * 1.5; el.scrollLeft = this.scrollLeft - walk; }
      }"
-     x-init="$watch('activeForm', val => { if(val === 'profil') { exiting = false; flipped = false; setTimeout(() => startHackerTyping(), 600); } })">
+     @buka-3d.window="buka3D = true; exiting = false; flipped = false; setTimeout(() => startHackerTyping(), 600);"
+     x-cloak x-show="buka3D" 
+     class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none profil-wrapper">
 
     <!-- 🌌 BACKGROUND GRADIENT & PARTIKEL PUTIH BERSIH -->
     <div class="absolute inset-0 transition-colors duration-1000 pointer-events-auto" :class="flipped ? 'theme-queen' : 'theme-dev'">
@@ -201,32 +193,24 @@ new class extends Component
     </div>
 
     <!-- 🎴 WADAH KARTU 3D UTAMA -->
-    <div class="profile-container pointer-events-auto" :class="{'exiting': exiting}" x-show="!exiting"
+    <div class="profile-container pointer-events-auto" :class="{'exiting': exiting}" x-show="!exiting && buka3D"
          x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 translate-y-16 scale-90 blur-md" x-transition:enter-end="opacity-100 translate-y-0 scale-100 blur-none">
          
         <div class="card-3d-wrapper" :class="{'flipped': flipped, 'levitate': levitate}">
             
-            <!-- ============================================== -->
-            <!-- 💻 SISI DEPAN: JULLJHHA (TEMA MERAH/PUTIH) -->
-            <!-- ============================================== -->
+            <!-- 💻 SISI DEPAN: JULLJHHA -->
             <div class="card-face front">
-                
-                <button class="btn-top-left" @click="exiting = true; setTimeout(() => activeForm = '', 400)" title="Kembali"><i class="fas fa-times"></i></button>
+                <button class="btn-top-left" @click="exiting = true; setTimeout(() => { buka3D = false; $dispatch('buka-lobi'); }, 400)" title="Kembali">
+    <i class="fas fa-times"></i></button>
                 <button class="btn-top-right" @click="flipToQueen()" title="Lihat Queen"><i class="fas fa-crown"></i></button>
 
                 <div class="profile-info">
-                    <h1 class="web-title">
-                        jull 
-                        <i class="fas fa-check-circle verified-badge" title="Verified Dev"></i>
-                    </h1>
-                    <p class="web-subtitle">
-                        <i class="fas fa-code"></i> Official Web Developer
-                    </p>
-                    
-                    <!-- Tags Baru Jull (+ Gunung) -->
+                    <h1 class="web-title">julljhha <i class="fas fa-check-circle verified-badge" title="Verified Dev"></i></h1>
+                    <p class="web-subtitle"><i class="fas fa-code"></i> Official Web Developer</p>
                     <div class="credential-tags">
                         <div class="tag-badge tag-dev"><i class="fas fa-shield-alt"></i> Verified Developer</div>
                         <div class="tag-badge tag-dev"><i class="fas fa-laptop-code"></i> UI/UX Designer</div>
+                        <div style="flex-basis: 100%; height: 0;"></div>
                         <div class="tag-badge tag-dev"><i class="fas fa-database"></i> Backend System</div>
                         <div class="tag-badge tag-dev"><i class="fas fa-mountain"></i> Mountain Explorer</div>
                     </div>
@@ -244,10 +228,7 @@ new class extends Component
                         @for($i=1; $i<=5; $i++)
                         <div class="gallery-card">
                             <i class="fas fa-code gallery-logo-pin" style="color:rgba(255,255,255,0.7);"></i>
-                            
-                            <!-- SIHIR PEMANGGIL FOTO JULL DARI FOLDER PUBLIC -->
                             <img src="{{ asset('images/profil/jul' . $i . '.jpg') }}" class="gallery-img" alt="Jull {{$i}}">
-                            
                             <div class="gallery-counter"><i class="fas fa-laptop-code" style="color:var(--dev-main);"></i> {{$i}} / 5</div>
                         </div>
                         @endfor
@@ -268,30 +249,24 @@ new class extends Component
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- 🌸 SISI BELAKANG: MICKHAYLA (TEMA PINK/PUTIH) -->
-            <!-- ============================================== -->
+            <!-- 🌸 SISI BELAKANG: MICKHAYLA -->
             <div class="card-face back">
-                
-                <button class="btn-top-left" @click="exiting = true; setTimeout(() => activeForm = '', 400)" title="Kembali"><i class="fas fa-times"></i></button>
+                <button class="btn-top-left" @click="exiting = true; setTimeout(() => { buka3D = false; $dispatch('buka-lobi'); }, 400)" title="Kembali">
+    <i class="fas fa-times"></i>
+</button>
                 <button class="btn-top-right" @click="flipToDev()" title="Kembali ke Dev"><i class="fas fa-fingerprint"></i></button>
 
                 <div class="profile-info">
-                    <h1 class="web-title">
-                        Mickhayla 
-                        <i class="fas fa-check-circle verified-badge" title="Queen"></i>
-                    </h1>
-                    <p class="web-subtitle">
-                        <i class="fas fa-heart"></i> Girlfriend Supportive
-                    </p>
-                    
-                    <!-- Tags Mickhayla (Fix Susunan 2x2 + English Expert) -->
+                    <h1 class="web-title">mickhayla <i class="fas fa-check-circle verified-badge" title="Queen"></i></h1>
+                    <p class="web-subtitle"><i class="fas fa-heart"></i> Girlfriend Supportive</p>
                     <div class="credential-tags">
-                        <div class="tag-badge tag-pink"><i class="fas fa-heart" style="color:var(--pink-main);"></i>Girlfriend</div>
+                        <div class="tag-badge tag-pink"><i class="fas fa-heart" style="color:var(--pink-main);"></i> Girlfriend</div>
                         <div class="tag-badge tag-pink"><i class="fas fa-camera-retro"></i> Fashion Model</div>
+                        <div style="flex-basis: 100%; height: 0;"></div>
                         <div class="tag-badge tag-pink"><i class="fas fa-language"></i> English Expert</div>
                         <div class="tag-badge tag-pink"><i class="fas fa-heartbeat"></i> Support System</div>
                     </div>
+                </div>
 
                 <div class="swipe-hint"><i class="fas fa-hand-pointer"></i> Geser foto atau Tap Sidik Jari</div>
                 
@@ -305,10 +280,7 @@ new class extends Component
                         @for($i=1; $i<=5; $i++)
                         <div class="gallery-card">
                             <i class="fas fa-heart gallery-logo-pin" style="color:rgba(255,255,255,0.7);"></i>
-                            
-                            <!-- BACA FILE: mica1.jpg, mica2.jpg, dst... -->
                             <img src="{{ asset('images/profil/mica' . $i . '.jpg') }}" class="gallery-img" alt="Mickhayla {{$i}}">
-                            
                             <div class="gallery-counter"><i class="fas fa-star" style="color:var(--pink-main);"></i> {{$i}} / 5</div>
                         </div>
                         @endfor

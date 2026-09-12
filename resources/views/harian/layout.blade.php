@@ -30,7 +30,7 @@
         @livewireStyles
     </head>
 
-    <body x-data="{ 
+<body x-data="{ 
             // 1. LOGIKA MENU BAWAH & PLUS
             showAddMenu: false, 
             activeForm: '',
@@ -95,6 +95,7 @@
                 this.uangKeluarStr = new Intl.NumberFormat('id-ID').format(current + nominal);
             }
         }" 
+        @buka-active-form.window="activeForm = $event.detail"
         class="bg-gray-50 text-gray-800 h-screen overflow-hidden flex flex-col relative">
 
         <livewire:beranda />
@@ -227,6 +228,8 @@
         <!-- ⚙️ JEROAN: LOBI MENU PROFIL UTAMA -->
         <!-- ========================================== -->
         <livewire:menu-profil />
+
+        <livewire:histori-log />
 
         @livewireScripts
     </body>

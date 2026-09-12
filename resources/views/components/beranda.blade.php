@@ -16,23 +16,22 @@ new class extends Component
     public $exp = 0;
     public $quote = "";
 
-    // Variabel Rank / Piala
     public $rankTitle = 'Novice';
     public $rankColor = 'text-orange-400';
     public $rankIcon = 'fa-medal';
 
-    // Variabel Target Dinamis
     public $targetName = 'Rakit PC';
     public $targetAmount = 2500000;
+    
+    // VARIABEL BARU BUAT NAMPUNG HISTORI REALTIME!
+    public $activityLogs = []; 
 
-    public function boot()
-    {
+    public function boot() {
         $this->setQuote();
         $this->muatData();
     }
 
-    public function setQuote()
-    {
+    public function setQuote() {
         $quotes = [
             "Bukan bug, itu fitur yang belum terpecahkan. 👾",
             "Satu baris kode hari ini, satu langkah menuju Pro! 🏆",
@@ -42,10 +41,10 @@ new class extends Component
         $this->quote = $quotes[array_rand($quotes)];
     }
 
-    public function muatData()
-    {
+    public function muatData() {
         $user = User::where('email', 'boss@harian.com')->first();
         if ($user) {
+            
             $target = DB::table('targets')->where('user_id', $user->id)->first();
             if($target) {
                 $this->targetName = $target->name;
@@ -59,88 +58,92 @@ new class extends Component
                     $query->where('priority', 'mendesak')
                           ->orWhere('due_date', 'hari_ini')
                           ->orWhere('due_date', 'hari ini');
-                })
-                ->orderBy('created_at', 'asc')
-                ->first();
+                })->orderBy('created_at', 'asc')->first();
 
             $this->notes = DB::table('notes')->where('user_id', $user->id)->orderBy('id', 'desc')->limit(12)->get();
-
-            $uangMasuk = DB::table('savings')->where('user_id', $user->id)->sum('amount');
-            $uangKeluar = DB::table('expenses')->where('user_id', $user->id)->sum('amount');
-            $this->saldo = $uangMasuk - $uangKeluar;
-
-            // 🌟 LOGIKA GAMIFIKASI & PIALA
+            $this->saldo = DB::table('savings')->where('user_id', $user->id)->sum('amount') - DB::table('expenses')->where('user_id', $user->id)->sum('amount');
+            
+            // Hitung Gamifikasi
             $totalMisiKelar = DB::table('tasks')->where('user_id', $user->id)->where('is_completed', true)->count();
             $totalNabung = DB::table('savings')->where('user_id', $user->id)->count();
-            
             $totalExp = ($totalMisiKelar * 50) + ($totalNabung * 20);
+            
             $this->level = floor($totalExp / 100) + 1;
             $this->exp = $totalExp % 100;
 
-            // Penentuan Title & Piala berdasarkan Level
             if ($this->level >= 15) {
-                $this->rankTitle = 'Legend';
-                $this->rankColor = 'text-yellow-500';
-                $this->rankIcon = 'fa-trophy';
+                $this->rankTitle = 'Legend'; $this->rankColor = 'text-yellow-500'; $this->rankIcon = 'fa-trophy';
             } elseif ($this->level >= 10) {
-                $this->rankTitle = 'Pro Dev';
-                $this->rankColor = 'text-purple-500';
-                $this->rankIcon = 'fa-crown';
+                $this->rankTitle = 'Pro Dev'; $this->rankColor = 'text-purple-500'; $this->rankIcon = 'fa-crown';
             } elseif ($this->level >= 5) {
-                $this->rankTitle = 'Hustler';
-                $this->rankColor = 'text-blue-500';
-                $this->rankIcon = 'fa-star';
+                $this->rankTitle = 'Hustler'; $this->rankColor = 'text-blue-500'; $this->rankIcon = 'fa-star';
             } else {
-                $this->rankTitle = 'Novice';
-                $this->rankColor = 'text-orange-500';
-                $this->rankIcon = 'fa-medal';
+                $this->rankTitle = 'Novice'; $this->rankColor = 'text-orange-500'; $this->rankIcon = 'fa-medal';
             }
 
-            $logMasuk = DB::table('savings')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'nabung' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
-            $logKeluar = DB::table('expenses')->where('user_id', $user->id)->select('amount', 'created_at', DB::raw("'keluar' as tipe"))->orderBy('id', 'desc')->limit(3)->get();
-            $semuaLog = $logMasuk->merge($logKeluar)->sortByDesc('created_at')->take(3);
-            
-            $this->logs = [];
-            foreach($semuaLog as $h) {
-                $time = \Carbon\Carbon::parse($h->created_at)->format('H:i');
-                if($h->tipe == 'nabung') {
-                    $this->logs[] = "[$time] > sys.nabung($h->amount) -> OK";
-                } else {
-                    $this->logs[] = "[$time] > sys.pay($h->amount) -> OK";
+            // SIHIR MUAT DATA HISTORI LOG SYSTEM DENGAN GROUPING
+            try {
+                $logsRaw = DB::table('activity_logs')->where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+                $this->activityLogs = [];
+                foreach($logsRaw as $l) {
+                    $dateKey = \Carbon\Carbon::parse($l->created_at)->isToday() ? 'HARI INI' : (\Carbon\Carbon::parse($l->created_at)->isYesterday() ? 'KEMARIN' : \Carbon\Carbon::parse($l->created_at)->format('d M Y'));
+                    $this->activityLogs[$dateKey][] = $l;
                 }
-            }
+            } catch (\Exception $e) { $this->activityLogs = []; }
         }
     }
 
-    public function simpanTarget($nama, $nominalStr)
-    {
-        $nominal = (int) preg_replace('/[^0-9]/', '', (string) $nominalStr);
-        if ($nominal <= 0 || empty(trim($nama))) return;
-
-        $user = User::where('email', 'boss@harian.com')->first();
-        $target = DB::table('targets')->where('user_id', $user->id)->first();
-
-        if ($target) {
-            DB::table('targets')->where('id', $target->id)->update(['name' => $nama, 'amount' => $nominal, 'updated_at' => now()]);
-        } else {
-            DB::table('targets')->insert(['user_id' => $user->id, 'name' => $nama, 'amount' => $nominal, 'created_at' => now(), 'updated_at' => now()]);
+    // SIHIR PEREKAM 1: SAAT TUGAS SELESAI
+    public function selesaiTugas($id) {
+        $task = DB::table('tasks')->where('id', $id)->first();
+        if($task) {
+            DB::table('activity_logs')->insert([
+                'user_id' => $task->user_id, 'type' => 'success', 'title' => 'Misi Selesai',
+                'description' => 'Misi "' . $task->title . '" berhasil dibabat habis! (+50 EXP)',
+                'icon' => 'fa-check-double', 'color' => 'emerald', 'created_at' => now()
+            ]);
+            DB::table('tasks')->where('id', $id)->update(['is_completed' => true]);
         }
-        $this->muatData();
-    }
-
-    public function selesaiTugas($id)
-    {
-        DB::table('tasks')->where('id', $id)->update(['is_completed' => true]);
         $this->muatData();
     }
     
-    public function hapusCatatan($id)
-    {
-        DB::table('notes')->where('id', $id)->delete();
+    // SIHIR PEREKAM 2: SAAT CATATAN DIHAPUS
+    public function hapusCatatan($id) {
+        $note = DB::table('notes')->where('id', $id)->first();
+        if($note) {
+            DB::table('activity_logs')->insert([
+                'user_id' => $note->user_id, 'type' => 'delete', 'title' => 'Catatan Dimusnahkan',
+                'description' => 'Ide "' . $note->title . '" telah dihapus permanen dari sistem.',
+                'icon' => 'fa-trash-alt', 'color' => 'red', 'created_at' => now()
+            ]);
+            DB::table('notes')->where('id', $id)->delete();
+        }
+        $this->muatData();
+    }
+
+    public function simpanTarget($nama, $nominalStr) {
+        $nominal = (int) preg_replace('/[^0-9]/', '', (string) $nominalStr);
+        if ($nominal <= 0 || empty(trim($nama))) return;
+        $user = User::where('email', 'boss@harian.com')->first();
+        $target = DB::table('targets')->where('user_id', $user->id)->first();
+        
+        if ($target) { 
+            DB::table('targets')->where('id', $target->id)->update(['name' => $nama, 'amount' => $nominal, 'updated_at' => now()]); 
+        } else { 
+            DB::table('targets')->insert(['user_id' => $user->id, 'name' => $nama, 'amount' => $nominal, 'created_at' => now(), 'updated_at' => now()]); 
+        }
+        
+        // Perekam juga kalau ubah target!
+        DB::table('activity_logs')->insert([
+            'user_id' => $user->id, 'type' => 'info', 'title' => 'Target Diperbarui',
+            'description' => 'Target tabungan diubah menjadi "' . $nama . '".',
+            'icon' => 'fa-bullseye', 'color' => 'blue', 'created_at' => now()
+        ]);
         $this->muatData();
     }
 };
 ?>
+
 
 <style>
     .premium-scroll::-webkit-scrollbar { height: 6px; }
@@ -180,22 +183,22 @@ new class extends Component
             </div>
         </div>
         
-        <!-- 🌟 PROFIL & GAMIFIKASI WIDGET 🌟 -->
-        <!-- Tombol ini udah disiapin buat ngebuka halaman profil nantinya -->
-        <button @click="activeForm = 'menu-profil'" class="flex flex-col items-center group cursor-pointer relative z-10 focus:outline-none">
-            
-            <!-- Trophy / Rank Badge (Muncul melayang) -->
+       <!-- 🌟 PROFIL & GAMIFIKASI WIDGET 🌟 -->
+<button @click="$dispatch('buka-lobi')" class="flex flex-col items-center group cursor-pointer relative z-10 focus:outline-none">
             <div class="absolute -top-3 bg-white px-2 py-0.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-1 z-20 group-hover:-translate-y-1 transition-transform">
                 <i class="fas {{ $rankIcon }} {{ $rankColor }} text-[8px]"></i>
                 <span class="text-[8px] font-black text-gray-700 tracking-wider">{{ $rankTitle }}</span>
             </div>
 
-            <!-- Foto Profil & Level Badge -->
-            <div class="relative mt-2">
+            <!-- Foto Profil & Level Badge (DENGAN PENANGKAP FOTO REALTIME) -->
+            <div class="relative mt-2" x-data="{ avatarAktif: '{{ asset('images/profil/jul1.jpg') }}' }" @ganti-foto-profil.window="avatarAktif = $event.detail">
+                
                 <!-- Ring Progress / Glow luar -->
                 <div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-red-500 to-orange-400 shadow-md group-hover:scale-105 transition-all">
-                    <!-- Avatar UI Otomatis -->
-                    <img src="https://ui-avatars.com/api/?name=Rixsan&background=1f2937&color=fff&bold=true" alt="Profil" class="w-full h-full rounded-full border-2 border-white object-cover bg-gray-100">
+                    
+                    <!-- INI YANG BIKIN FOTO BERUBAH REALTIME: :src="avatarAktif" -->
+                    <img :src="avatarAktif" alt="Profil" class="w-full h-full rounded-full border-2 border-white object-cover bg-gray-100">
+                    
                 </div>
 
                 <!-- Level Badge kecil di pojok foto -->
