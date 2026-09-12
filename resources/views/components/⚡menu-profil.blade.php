@@ -19,7 +19,7 @@ new class extends Component {};
             <!-- HEADER MEWAH -->
             <div class="px-7 py-4 flex items-center justify-between">
                 <div>
-                    <h3 class="text-2xl font-black text-gray-900 tracking-tight">Akun Rixsan</h3>
+                    <h3 class="text-2xl font-black text-gray-900 tracking-tight">Julljhha Account</h3>
                     <p class="text-[11px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1.5 mt-1">
                         <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span> Sistem Aktif
                     </p>
@@ -73,7 +73,7 @@ new class extends Component {};
                     <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl border border-white/30 group-hover:scale-110 transition-all"><i class="fas fa-gem"></i></div>
                     <div class="text-left flex-1 relative z-10">
                         <h4 class="font-extrabold text-white text-sm tracking-wide">Ruang Relationship</h4>
-                        <p class="text-[10px] font-bold text-pink-100 mt-0.5">Buka ID Card 3D Jull & Mickhayla</p>
+                        <p class="text-[10px] font-bold text-pink-100 mt-0.5">Jull & Mickhayla</p>
                     </div>
                     <i class="fas fa-chevron-right text-white/60 group-hover:text-white transition-colors relative z-10"></i>
                 </button>

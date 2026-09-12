@@ -150,8 +150,25 @@ new class extends Component
          flipped: false, levitate: false, exiting: false,
          isDown: false, startX: 0, scrollLeft: 0,
          
-         rawBioText: 'root@juldev:~$ ./load_bio.sh\n\n[OK] Auth Success.\nGw Jull. Developer utama Harian Rixsan. Suka ngoding, UI/UX, dan naik gunung nyari inspirasi. Enjoy the system!',
+         rawBioText: 'root@juldev:~$ ./load_bio.sh\n\n[OK] Auth Success.\nHi, I\'m Jull, the developer behind this site. I take huge pride in building this from the ground up using my core stack. Hopefully, this marks the beginning of an epic, long journey.',
          displayedBio: '', typeIndex: 0, isTyping: false, typingInterval: null,
+         
+         // 🌸 DATA & MESIN KETIK BUAT MICKAYLA 🌸
+         rawBioQueen: 'And yeah, this is my girl, Mickayla. She\'s my ultimate support system, always hyping me up no matter what. She\'s beautiful, kind-hearted, and incredibly caring. I love her so much. ✨💖',
+         displayedBioQueen: '', typeIndexQueen: 0, typingIntervalQueen: null,
+         
+         startQueenTyping() {
+             this.displayedBioQueen = ''; this.typeIndexQueen = 0;
+             clearInterval(this.typingIntervalQueen);
+             this.typingIntervalQueen = setInterval(() => {
+                 if (this.typeIndexQueen < this.rawBioQueen.length) {
+                     this.displayedBioQueen += this.rawBioQueen.charAt(this.typeIndexQueen);
+                     this.typeIndexQueen++;
+                 } else {
+                     clearInterval(this.typingIntervalQueen);
+                 }
+             }, 35);
+         },
          
          startHackerTyping() {
              this.displayedBio = ''; this.typeIndex = 0; this.isTyping = true;
@@ -168,10 +185,21 @@ new class extends Component
          },
          
          flipToQueen() {
-             this.levitate = true; setTimeout(() => { this.flipped = true; }, 300); setTimeout(() => { this.levitate = false; }, 1000);
+             this.levitate = true; 
+             setTimeout(() => { 
+                 this.flipped = true; 
+                 setTimeout(() => this.startQueenTyping(), 300); // <-- INI SAKLARNYA!
+             }, 300); 
+             setTimeout(() => { this.levitate = false; }, 1000);
          },
+         
          flipToDev() {
-             this.levitate = true; setTimeout(() => { this.flipped = false; setTimeout(() => this.startHackerTyping(), 300); }, 300); setTimeout(() => { this.levitate = false; }, 1000);
+             this.levitate = true; 
+             setTimeout(() => { 
+                 this.flipped = false; 
+                 setTimeout(() => this.startHackerTyping(), 300); 
+             }, 300); 
+             setTimeout(() => { this.levitate = false; }, 1000);
          },
 
          startDrag(e, el) { this.isDown = true; el.classList.add('active'); this.startX = (e.pageX || e.touches[0].pageX) - el.offsetLeft; this.scrollLeft = el.scrollLeft; },
@@ -288,10 +316,9 @@ new class extends Component
                 </div>
 
                 <div class="profile-info" style="margin-bottom:0;">
-                    <div class="bio-box bio-pink">
-                        "Hai semuanya! Kenalin aku Mickhayla. Aku support system nomor satu buat Jull. Kalau web ini keren dan tanpa bug, itu berkat doa dan kopi yang aku bikinin! ✨💖 <i>Enjoy the vibes!</i>"
+                    <div class="bio-box bio-pink" style="text-align: left;">
+                        <span x-text="displayedBioQueen"></span><span class="cursor-blink" style="background-color: var(--pink-main);"></span>
                     </div>
-
                     <div class="btn-stack">
                         <button type="button" class="btn-pro btn-pink-gradient" onclick="window.open('https://www.instagram.com/k_m_a27?stkn=MXMxaGdudW11d3lkeg==', '_blank')">
                             <i class="fab fa-instagram" style="font-size:20px;"></i> Follow @k_m_a27
