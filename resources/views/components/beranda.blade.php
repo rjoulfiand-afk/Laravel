@@ -124,6 +124,33 @@ new class extends Component
         $this->dispatch('refreshHistori'); // Panggil histori biar update
     }
 
+    // Daftarin telinga buat denger perintah dari Javascript
+    protected $listeners = ['updateCatatanEvent' => 'updateCatatan'];
+
+    // SIHIR PEREKAM: UPDATE CATATAN
+    public function updateCatatan($data) {
+        $id = $data['id'];
+        $title = $data['title'];
+        $content = $data['content'];
+
+        $note = DB::table('notes')->where('id', $id)->first();
+        if($note) {
+            DB::table('notes')->where('id', $id)->update([
+                'title' => $title,
+                'content' => $content,
+                'updated_at' => now()
+            ]);
+
+            // Lapor ke CCTV kalau catatan diedit!
+            DB::table('activity_logs')->insert([
+                'user_id' => $note->user_id, 'type' => 'info', 'title' => 'Catatan Diperbarui',
+                'description' => 'Isi catatan "' . $title . '" baru saja diedit & disimpan ulang.',
+                'icon' => 'fa-edit', 'color' => 'blue', 'created_at' => now()
+            ]);
+        }
+        $this->muatData();
+    }
+
     public function simpanTarget($nama, $nominalStr) {
         $nominal = (int) preg_replace('/[^0-9]/', '', (string) $nominalStr);
         if ($nominal <= 0 || empty(trim($nama))) return;

@@ -123,48 +123,119 @@
             <span class="text-[9px] font-bold tracking-widest uppercase">Portal</span>
         </button>
                 </li>
-                <li><a href="#" class="flex flex-col items-center gap-1.5 hover:text-red-500"><i class="fas fa-robot text-xl"></i><span class="text-[9px] font-bold tracking-widest uppercase">Asisten</span></a></li>
-            </ul>
+               <li>
+                    <button type="button" @click="activeForm = 'asisten'" class="flex flex-col items-center gap-1.5 text-gray-400 hover:text-blue-500 transition-colors focus:outline-none">
+                        <i class="fas fa-robot text-xl"></i>
+                        <span class="text-[9px] font-bold tracking-widest uppercase">Asisten</span>
+                    </button>
+                </li>
         </nav>
 
+       <!-- ========================================== -->
+        <!-- 🌟 MODAL BACA & EDIT (REALISTIC NOTEPAD) 🌟 -->
         <!-- ========================================== -->
-        <!-- 🌟 MODAL BACA CATATAN (GELEMBUNG PECAH) 🌟 -->
-        <!-- ========================================== -->
-        <div x-cloak x-show="showNoteModal" class="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none p-6">
-            <div x-show="showNoteModal" x-transition.opacity.duration.300ms class="absolute inset-0 bg-gray-900/40 backdrop-blur-md pointer-events-auto" @click="tiupGelembung()"></div>
+        <div x-cloak x-show="showNoteModal" class="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none p-4 sm:p-6">
+            <!-- Backdrop -->
+            <div x-show="showNoteModal" x-transition.opacity.duration.400ms class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm pointer-events-auto" @click="if(!isEditing) tiupGelembung()"></div>
             
+            <!-- Box Modal (Anti Nyusut) -->
             <div x-show="showNoteModal" 
                 x-transition:enter="transition ease-out duration-300 transform" 
-                x-transition:enter-start="scale-50 opacity-0 translate-y-10" 
+                x-transition:enter-start="scale-95 opacity-0 translate-y-4" 
                 x-transition:enter-end="scale-100 opacity-100 translate-y-0" 
-                x-transition:leave="blow-away-leave-active"
-                x-transition:leave-start="scale-100 opacity-100 translate-y-0 rotate-0 filter-none"
-                x-transition:leave-end="blow-away-leave-to"
-                class="relative w-full max-w-sm bg-white rounded-[2rem] p-6 shadow-2xl pointer-events-auto"
-                x-data="{ note: {} }" x-init="$watch('activeNote', val => { if(val) note = val })">
+                class="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl pointer-events-auto flex flex-col overflow-hidden" 
+                style="max-height: 85vh;"
+                x-data="{ note: {}, isEditing: false, editTitle: '', editContent: '' }" 
+                x-init="$watch('activeNote', val => { 
+                    if(val) { note = val; isEditing = false; editTitle = val.title; editContent = val.text; } 
+                })">
                 
-                <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-12 h-6 bg-white/50 backdrop-blur-sm rounded-full border border-gray-200 shadow-sm flex items-center justify-center">
-                    <div class="w-2 h-2 bg-red-400 rounded-full shadow-inner"></div>
-                </div>
-
-                <button @click="tiupGelembung()" class="absolute top-4 right-4 w-8 h-8 bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                    <i class="fas fa-wind text-sm"></i>
-                </button>
-
-                <div class="mt-4">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br shadow-md" :class="note.color">
-                            <i class="fas text-xl" :class="note.icon"></i>
+                <!-- Header Modal Putih Bersih -->
+                <div class="px-6 py-5 flex items-center justify-between border-b border-slate-100 bg-white z-20 shrink-0">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md transition-colors" :class="isEditing ? 'bg-blue-500' : note.color">
+                            <i class="fas text-xl" :class="isEditing ? 'fa-pen-nib' : note.icon"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl font-black text-gray-900 leading-tight" x-text="note.title"></h2>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider" x-text="note.date"></p>
+                            <h3 class="font-black text-slate-800 text-base" x-text="isEditing ? 'Mode Edit' : 'Review Catatan'"></h3>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5" x-text="isEditing ? 'Perbarui Ide Brilianmu' : note.date"></p>
                         </div>
                     </div>
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 min-h-[150px]">
-                        <p class="text-gray-700 font-medium leading-relaxed" x-text="note.text"></p>
+                    <div class="flex items-center gap-2">
+                        <button x-show="!isEditing" @click="isEditing = true" class="w-9 h-9 rounded-full bg-slate-50 text-blue-500 hover:text-white hover:bg-blue-500 transition-all flex items-center justify-center border border-slate-200 shadow-sm active:scale-95">
+                            <i class="fas fa-pen text-[11px]"></i>
+                        </button>
+                        <button @click="if(isEditing){ isEditing=false; } else { tiupGelembung(); }" class="w-9 h-9 rounded-full bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all flex items-center justify-center border border-slate-200 shadow-sm active:scale-95">
+                            <i class="fas fa-times text-[13px]"></i>
+                        </button>
                     </div>
                 </div>
+
+                <!-- Area Konten (Background Abu Halus) -->
+                <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 premium-scroll relative">
+                    
+                    <!-- 📖 MODE BACA -->
+                    <div x-show="!isEditing" x-transition.opacity class="space-y-4">
+                        <h2 class="text-2xl font-black text-slate-800 px-1" x-text="note.title"></h2>
+                        
+                        <!-- Kertas Garis Realistis -->
+                        <div class="relative w-full rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden min-h-[250px]">
+                            <!-- Garis Margin Merah -->
+                            <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-rose-300 z-10 opacity-70"></div>
+                            <div class="absolute left-[36px] top-0 bottom-0 w-[1px] bg-rose-300 z-10 opacity-40"></div>
+                            
+                            <!-- Teks Bacaan -->
+                            <div class="pl-14 pr-5 py-2 text-slate-700 font-medium text-[14px] whitespace-pre-wrap break-words min-h-[250px]"
+                                 style="line-height: 32px; background-image: repeating-linear-gradient(transparent, transparent 31px, #bae6fd 31px, #bae6fd 32px); background-attachment: local;"
+                                 x-text="note.text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ✍️ MODE EDIT -->
+                    <div x-show="isEditing" x-cloak class="space-y-5">
+                        <!-- Input Judul -->
+                        <div>
+                            <label class="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1.5 ml-1">Judul Baru</label>
+                            <input type="text" x-model="editTitle" class="w-full bg-white border border-slate-200 rounded-xl py-3.5 px-4 font-black text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 shadow-sm transition-all text-sm">
+                        </div>
+                        
+                        <!-- Textarea Kertas Edit -->
+                        <div>
+                            <label class="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1.5 ml-1">Isi Catatan</label>
+                            <div class="relative w-full rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                                <!-- Garis Margin Merah -->
+                                <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-rose-300 z-10 opacity-70"></div>
+                                <div class="absolute left-[36px] top-0 bottom-0 w-[1px] bg-rose-300 z-10 opacity-40"></div>
+                                
+                                <textarea x-model="editContent" rows="7" class="w-full bg-transparent pl-14 pr-5 py-2 text-slate-700 font-medium text-[14px] resize-none focus:outline-none premium-scroll relative z-20"
+                                          style="line-height: 32px; background-image: repeating-linear-gradient(transparent, transparent 31px, #bae6fd 31px, #bae6fd 32px); background-attachment: local;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Simpan (Hanya muncul saat edit) -->
+                <div x-show="isEditing" x-cloak class="p-5 bg-white border-t border-slate-100 z-20 shrink-0">
+                    <button @click="
+                            let now = new Date();
+                            let jam = now.getHours().toString().padStart(2, '0');
+                            let menit = now.getMinutes().toString().padStart(2, '0');
+                            let hari = now.getDate().toString().padStart(2, '0');
+                            let bln = now.toLocaleString('id-ID', { month: 'short' }).toUpperCase();
+                            let thn = now.getFullYear();
+                            let waktuAsli = `${hari} ${bln} ${thn}, ${jam}:${menit}`;
+
+                            Livewire.dispatch('updateCatatanEvent', [{ id: note.id, title: editTitle, content: editContent }]);
+                            note.title = editTitle;
+                            note.text = editContent;
+                            note.date = waktuAsli;
+                            isEditing = false;"
+                            class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all shadow-[0_8px_20px_rgba(37,99,235,0.25)] active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fas fa-save text-sm"></i> Simpan Perubahan
+                    </button>
+                </div>
+
             </div>
         </div>
 
@@ -231,6 +302,8 @@
         <livewire:menu-profil />
 
         <livewire:histori-log />
+
+        <livewire:asisten-ai />
 
         @livewireScripts
     </body>
