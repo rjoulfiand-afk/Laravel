@@ -19,6 +19,9 @@ return new class extends Migration
         $table->text('description')->nullable();
         $table->string('icon')->nullable();
         $table->string('color')->nullable();
+        // 2 KOLOM BARU BUAT MESIN WAKTU (RESTORE)
+        $table->string('table_name')->nullable(); 
+        $table->text('payload')->nullable(); 
         $table->timestamps();
     });
 }

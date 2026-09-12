@@ -96,6 +96,7 @@
             }
         }" 
         @buka-active-form.window="activeForm = $event.detail"
+        @buka-gelembung.window="activeNote = $event.detail; showNoteModal = true"
         class="bg-gray-50 text-gray-800 h-screen overflow-hidden flex flex-col relative">
 
         <livewire:beranda />

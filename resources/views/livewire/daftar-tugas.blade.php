@@ -110,9 +110,20 @@ new class extends Component
                             $badgeBg = 'bg-blue-50'; $badgeText = 'text-blue-600'; $badgeBorder = 'border-blue-100'; $strip = 'bg-blue-500';
                             if($task->priority == 'mendesak') { $badgeBg = 'bg-red-50'; $badgeText = 'text-red-600'; $badgeBorder = 'border-red-100'; $strip = 'bg-red-500'; }
                             elseif($task->priority == 'santai') { $badgeBg = 'bg-green-50'; $badgeText = 'text-green-600'; $badgeBorder = 'border-green-100'; $strip = 'bg-green-500'; }
+                            $modalColor = $badgeBg . ' ' . $badgeText;
                         @endphp
 
-                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative overflow-hidden group transition-all hover:border-gray-300">
+                        <!-- KARTU TUGAS BISA DIKLIK -->
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 relative overflow-hidden group transition-all hover:border-gray-300 hover:shadow-md cursor-pointer"
+                             @click="$dispatch('buka-gelembung', {
+                                 id: {{ $task->id }},
+                                 title: {{ json_encode($task->title) }},
+                                 text: {{ json_encode($task->detail ?? 'Tidak ada detail khusus untuk misi ini.') }},
+                                 date: 'Tenggat: {{ str_replace('_', ' ', $task->due_date) ?: 'Kapan aja' }}',
+                                 color: '{{ $modalColor }}',
+                                 icon: 'fa-clipboard-list'
+                             })">
+                            
                             <!-- Strip Warna Prioritas di Kiri -->
                             <div class="absolute left-0 top-0 bottom-0 w-1.5 {{ $filter === 'selesai' ? 'bg-gray-300' : $strip }}"></div>
                             
@@ -136,22 +147,19 @@ new class extends Component
                                     @endif
                                 </div>
                                 
-                                <!-- TOMBOL AKSI -->
+                                <!-- TOMBOL AKSI (WAJIB PAKAI @click.stop BIAR GA BENTROK SAMA KLIK KARTU) -->
                                 <div class="flex flex-col gap-2 shrink-0">
                                     @if($filter === 'aktif')
-                                        <!-- Tombol Selesai (Centang) -->
-                                        <button wire:click="ubahStatus({{ $task->id }}, true)" class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-300 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-50 transition-colors shadow-sm bg-gray-50">
+                                        <button wire:click.stop="ubahStatus({{ $task->id }}, true)" @click.stop class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-300 hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-50 transition-colors shadow-sm bg-gray-50" title="Selesaikan">
                                             <i class="fas fa-check text-[10px]"></i>
                                         </button>
                                     @else
-                                        <!-- Tombol Undo (Balikin ke Aktif) -->
-                                        <button wire:click="ubahStatus({{ $task->id }}, false)" class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-colors shadow-sm bg-gray-50" title="Batal Selesai">
+                                        <button wire:click.stop="ubahStatus({{ $task->id }}, false)" @click.stop class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-400 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-colors shadow-sm bg-gray-50" title="Batal Selesai">
                                             <i class="fas fa-undo-alt text-[10px]"></i>
                                         </button>
                                     @endif
                                     
-                                    <!-- Tombol Hapus (Tong Sampah) -->
-                                    <button wire:click="hapusTugas({{ $task->id }})" class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-300 hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm bg-gray-50">
+                                    <button wire:click.stop="hapusTugas({{ $task->id }})" @click.stop class="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-300 hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-colors shadow-sm bg-gray-50" title="Hapus Tugas">
                                         <i class="fas fa-trash-alt text-[10px]"></i>
                                     </button>
                                 </div>

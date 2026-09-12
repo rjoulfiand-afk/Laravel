@@ -107,18 +107,21 @@ new class extends Component
         $this->muatData();
     }
     
-    // SIHIR PEREKAM 2: SAAT CATATAN DIHAPUS
     public function hapusCatatan($id) {
         $note = DB::table('notes')->where('id', $id)->first();
         if($note) {
             DB::table('activity_logs')->insert([
-                'user_id' => $note->user_id, 'type' => 'delete', 'title' => 'Catatan Dimusnahkan',
-                'description' => 'Ide "' . $note->title . '" telah dihapus permanen dari sistem.',
-                'icon' => 'fa-trash-alt', 'color' => 'red', 'created_at' => now()
+                'user_id' => $note->user_id, 'type' => 'delete', 'title' => 'Catatan Dihapus',
+                'description' => 'Ide "' . $note->title . '" telah dihapus.',
+                'icon' => 'fa-trash-alt', 'color' => 'red',
+                'table_name' => 'notes', // Kasih tau sistem ini dari tabel notes
+                'payload' => json_encode($note), // Simpan isi catatannya disini!
+                'created_at' => now()
             ]);
             DB::table('notes')->where('id', $id)->delete();
         }
         $this->muatData();
+        $this->dispatch('refreshHistori'); // Panggil histori biar update
     }
 
     public function simpanTarget($nama, $nominalStr) {
@@ -342,7 +345,17 @@ new class extends Component
                         <i class="fas fa-check text-[10px]"></i>
                     </button>
                     
-                    <div class="flex-1 min-w-0">
+                    <!-- Bagian Teks Tugas (Bisa diklik untuk review lengkap!) -->
+                    <div class="flex-1 min-w-0 cursor-pointer hover:bg-red-50/50 p-2 rounded-xl transition-colors"
+                         @click="$dispatch('buka-gelembung', {
+                             id: {{ $topTask->id }},
+                             title: {{ json_encode($topTask->title) }},
+                             text: {{ json_encode($topTask->detail ?? 'Tidak ada detail khusus untuk misi ini.') }},
+                             date: 'Tenggat: {{ str_replace('_', ' ', $topTask->due_date) ?: 'Kapan aja' }}',
+                             color: 'bg-red-50 text-red-600',
+                             icon: 'fa-bolt'
+                         })">
+                         
                         <h4 class="font-extrabold text-red-900 text-sm truncate">{{ $topTask->title }}</h4>
                         <div class="flex items-center gap-2 mt-1">
                             <span class="text-[8px] font-black uppercase tracking-widest text-white bg-red-500 px-1.5 py-0.5 rounded shadow-sm">
@@ -376,13 +389,26 @@ new class extends Component
                 @endphp
                 @foreach($notes as $index => $note)
                     @php $theme = $themes[$index % 4]; @endphp
-                    <div class="snap-start shrink-0 w-36 {{ $theme['bg'] }} rounded-2xl p-4 border {{ $theme['border'] }} relative group transition-all">
-                        <button wire:click="hapusCatatan({{ $note->id }})" class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-600 rounded-full transition-colors">
+                    
+                    <!-- Kartu Catatan (json_encode anti error enter) -->
+                    <div @click="$dispatch('buka-gelembung', { 
+                             id: {{ $note->id }}, 
+                             title: {{ json_encode($note->title) }}, 
+                             text: {{ json_encode($note->content) }}, 
+                             date: '{{ \Carbon\Carbon::parse($note->created_at)->format('d M Y, H:i') }}', 
+                             color: '{{ $theme['bg'] }} text-gray-800', 
+                             icon: '{{ $note->icon ?: 'fa-lightbulb' }}' 
+                         })" 
+                         class="snap-start shrink-0 w-40 {{ $theme['bg'] }} rounded-3xl p-4 border {{ $theme['border'] }} relative group transition-all hover:scale-105 cursor-pointer shadow-sm">
+                        
+                        <!-- Tambahan @click.stop biar silangnya ga ngebuka modal -->
+                        <button wire:click.stop="hapusCatatan({{ $note->id }})" @click.stop class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-white/50 backdrop-blur-sm text-gray-400 hover:text-red-600 rounded-full transition-colors z-20 shadow-sm">
                             <i class="fas fa-times text-[10px]"></i>
                         </button>
-                        <i class="fas {{ $note->icon ?: 'fa-lightbulb' }} {{ $theme['text'] }} text-lg mb-2"></i>
-                        <h4 class="font-bold text-gray-900 text-[11px] truncate mb-1">{{ $note->title }}</h4>
-                        <p class="text-[9px] font-medium text-gray-500 truncate w-full">{{ $note->content }}</p>
+                        
+                        <i class="fas {{ $note->icon ?: 'fa-lightbulb' }} {{ $theme['text'] }} text-xl mb-3 mt-1"></i>
+                        <h4 class="font-extrabold text-gray-900 text-xs line-clamp-1 mb-1" title="{{ $note->title }}">{{ $note->title }}</h4>
+                        <p class="text-[9px] font-medium text-gray-500 line-clamp-2 w-full leading-relaxed">{{ $note->content }}</p>
                     </div>
                 @endforeach
             </div>
