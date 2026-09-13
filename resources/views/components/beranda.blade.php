@@ -89,8 +89,20 @@ new class extends Component
                     $dateKey = \Carbon\Carbon::parse($l->created_at)->isToday() ? 'HARI INI' : (\Carbon\Carbon::parse($l->created_at)->isYesterday() ? 'KEMARIN' : \Carbon\Carbon::parse($l->created_at)->format('d M Y'));
                     $this->activityLogs[$dateKey][] = $l;
                 }
-            } catch (\Exception $e) { $this->activityLogs = []; }
-        }
+                
+                // 👇 INI YANG BIKIN TERMINAL LU BISA BACA DATA 👇
+                $this->logs = DB::table('activity_logs')
+                                ->where('user_id', $user->id)
+                                ->orderBy('created_at', 'desc')
+                                ->limit(3)
+                                ->pluck('description')
+                                ->toArray();
+                                
+            } catch (\Exception $e) { 
+                $this->activityLogs = []; 
+                $this->logs = [];
+            }
+        } 
     }
 
     // SIHIR PEREKAM 1: SAAT TUGAS SELESAI
@@ -183,7 +195,7 @@ new class extends Component
     .premium-scroll { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 </style>
 
-<main class="flex-1 overflow-y-auto pb-28 p-6 relative bg-white" wire:poll.3s="muatData">
+<main class="flex-1 overflow-y-auto pb-36 p-6 relative bg-white" wire:poll.3s="muatData">
     
     <!-- HEADER: OTAK JAM REALTIME & PROFIL GAMIFIKASI -->
     <div x-data="{

@@ -30,6 +30,7 @@ new class extends Component
         
         font-family: 'Poppins', sans-serif;
         color: #2C3E50;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Background Partikel Asli */
@@ -55,17 +56,33 @@ new class extends Component
 
     /* Sisi Kartu Putih Elegan */
     .card-face {
-        grid-area: 1 / 1; backface-visibility: hidden;
+        grid-area: 1 / 1; 
+        backface-visibility: hidden; 
+        -webkit-backface-visibility: hidden; /* Kunci anti-tembus buat iOS */
         background-color: var(--glass-white);
         border: 1px solid rgba(255, 255, 255, 0.8);
-        border-radius: 32px; padding: 35px 20px 25px;
-        position: relative; overflow: hidden; pointer-events: none; 
+        border-radius: 32px; 
+        padding: 35px 20px 25px;
+        position: relative; 
+        overflow: hidden; 
+        pointer-events: none; 
     }
 
-    .card-face.front { pointer-events: auto; box-shadow: var(--shadow-dev); border: 1px solid rgba(231, 76, 60, 0.2); }
+    .card-face.front { 
+        pointer-events: auto; 
+        box-shadow: var(--shadow-dev); 
+        border: 1px solid rgba(231, 76, 60, 0.2); 
+    }
+    
     .card-3d-wrapper.flipped .card-face.back { pointer-events: auto; }
     .card-3d-wrapper.flipped .card-face.front { pointer-events: none; }
-    .card-face.back { transform: rotateY(180deg); box-shadow: var(--shadow-cute); border: 1px solid rgba(255, 126, 179, 0.2); }
+    
+    .card-face.back { 
+        transform: rotateY(180deg); 
+        box-shadow: var(--shadow-cute); 
+        border: 1px solid rgba(255, 126, 179, 0.2); 
+    }
+
 
     /* Tombol Sudut */
     .btn-top-left, .btn-top-right {
@@ -207,8 +224,9 @@ new class extends Component
          doDrag(e, el) { if(!this.isDown) return; e.preventDefault(); const x = (e.pageX || e.touches[0].pageX) - el.offsetLeft; const walk = (x - this.startX) * 1.5; el.scrollLeft = this.scrollLeft - walk; }
      }"
      @buka-3d.window="buka3D = true; exiting = false; flipped = false; setTimeout(() => startHackerTyping(), 600);"
+     x-init="$watch('buka3D', value => { document.body.style.overflow = value ? 'hidden' : ''; })"
      x-cloak x-show="buka3D" 
-     class="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none profil-wrapper">
+     class="fixed inset-0 z-[99999] overflow-y-auto pointer-events-auto profil-wrapper bg-white">
 
     <!-- 🌌 BACKGROUND GRADIENT & PARTIKEL PUTIH BERSIH -->
     <div class="absolute inset-0 transition-colors duration-1000 pointer-events-auto" :class="flipped ? 'theme-queen' : 'theme-dev'">
@@ -219,9 +237,9 @@ new class extends Component
             @endfor
         </div>
     </div>
-
     <!-- 🎴 WADAH KARTU 3D UTAMA -->
-    <div class="profile-container pointer-events-auto" :class="{'exiting': exiting}" x-show="!exiting && buka3D"
+    <div class="w-full min-h-full flex items-center justify-center py-10">
+    <div class="profile-container" :class="{'exiting': exiting}" x-show="!exiting && buka3D"
          x-transition:enter="transition ease-out duration-700" x-transition:enter-start="opacity-0 translate-y-16 scale-90 blur-md" x-transition:enter-end="opacity-100 translate-y-0 scale-100 blur-none">
          
         <div class="card-3d-wrapper" :class="{'flipped': flipped, 'levitate': levitate}">
@@ -329,4 +347,5 @@ new class extends Component
             
         </div>
     </div>
+</div>
 </div>

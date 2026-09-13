@@ -3,7 +3,7 @@
     <!-- === WAJAH HTML === -->
     <div x-cloak x-show="activeForm === 'nabung'" class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none">
         <div x-show="activeForm === 'nabung'" x-transition.opacity @click="activeForm = ''" class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm pointer-events-auto"></div>
-        <div x-show="activeForm === 'nabung'" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="relative w-full h-[95vh] bg-white rounded-t-[2.5rem] shadow-2xl pointer-events-auto flex flex-col">
+        <div x-show="activeForm === 'nabung'" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" class="relative w-full max-h-[90dvh] h-full bg-white rounded-t-[2.5rem] shadow-2xl pointer-events-auto flex flex-col">
             
             <div class="flex items-center gap-4 p-6 border-b border-gray-100 bg-gradient-to-r from-emerald-50 to-white rounded-t-[2.5rem] relative overflow-hidden">
                 <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-200 opacity-30 rounded-full blur-xl"></div>

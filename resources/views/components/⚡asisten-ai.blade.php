@@ -215,10 +215,9 @@ new class extends Component {
 
         <!-- Panel Chatbot Premium -->
         <div x-show="activeForm === 'asisten'"
-             x-transition:enter="transition ease-out duration-400 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition ease-in duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
-             class="relative w-full md:max-w-md h-screen bg-slate-50 pointer-events-auto flex flex-col overflow-hidden shadow-[-20px_0_50px_rgba(225,29,72,0.15)] border-l border-white/50">
-
+     x-transition:enter="transition ease-out duration-400 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+     x-transition:leave="transition ease-in duration-300 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+     class="fixed inset-0 md:left-auto md:w-md w-full h-[100dvh] bg-slate-50 pointer-events-auto flex flex-col overflow-hidden shadow-2xl z-[99999]">
             <!-- Header dengan Tombol Reset Memori -->
             <div class="bg-white/95 backdrop-blur-xl border-b border-slate-100 px-5 pt-12 pb-4 flex items-center justify-between z-30 shadow-sm shrink-0">
                 <div class="flex items-center gap-4">
