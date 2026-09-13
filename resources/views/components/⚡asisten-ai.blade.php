@@ -73,7 +73,6 @@ new class extends Component {
             return;
         }
 
-        // Siapkan struktur parts untuk Gemini
         $parts = [];
         if (!empty($pesanUser)) {
             $parts[] = ['text' => $pesanUser];
@@ -81,7 +80,6 @@ new class extends Component {
             $parts[] = ['text' => 'Tolong analisis gambar ini boss Jell.'];
         }
 
-        // 3. FITUR VISION (Menganalisis Gambar)
         $gambarUrlUI = null;
         if ($this->gambar) {
             $mimeType = $this->gambar->getMimeType();
@@ -93,25 +91,21 @@ new class extends Component {
                     'data' => $base64Data
                 ]
             ];
-            // Ambil URL sementara buat ditampilin di layar chat Boss Jull
             $gambarUrlUI = $this->gambar->temporaryUrl(); 
         }
 
-        // Tampilkan pesan User di layar
         $this->chats[] = [
             'role'  => 'user',
             'text'  => $pesanUser,
-            'image' => $gambarUrlUI, // Masukin gambar kalau ada
+            'image' => $gambarUrlUI, 
             'time'  => now()->format('H:i'),
         ];
 
-        // Tambah ke history API Gemini
         $this->apiHistory[] = [
             'role'  => 'user',
             'parts' => $parts,
         ];
 
-        // Bersihkan inputan
         $this->pesan = '';
         $this->gambar = null; 
         $this->dispatch('scrollBottom');
@@ -129,7 +123,7 @@ new class extends Component {
                 ->timeout(120)
                 ->withHeaders(['Content-Type' => 'application/json'])
                 ->post(
-                    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=' . $apiKey,
+                    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey,
                     [
                         'system_instruction' => [
                             'parts' => [['text' => $this->identitasJell]],
@@ -344,7 +338,6 @@ new class extends Component {
                     <!-- TOMBOL AKSES GALERI/KAMERA -->
                     <label class="w-10 h-10 shrink-0 text-slate-300 hover:text-red-500 transition-colors cursor-pointer flex items-center justify-center rounded-full hover:bg-red-50">
                         <i class="fas fa-image text-[15px]"></i>
-                        <!-- Input file disembunyikan tapi bisa diklik lewat label -->
                         <input type="file" wire:model="gambar" class="hidden" accept="image/*">
                     </label>
 
@@ -354,7 +347,6 @@ new class extends Component {
                         <span wire:loading.remove wire:target="kirimPesan, gambar">
                             <i class="fas fa-paper-plane text-xs -translate-x-[1px] translate-y-[1px]"></i>
                         </span>
-                        <!-- Loading spinner kalau lagi ngirim atau nunggu gambar ke-upload -->
                         <span wire:loading wire:target="kirimPesan, gambar">
                             <i class="fas fa-circle-notch fa-spin text-xs"></i>
                         </span>

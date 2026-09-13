@@ -58,15 +58,23 @@ new class extends Component
     .card-face {
         grid-area: 1 / 1; 
         backface-visibility: hidden; 
-        -webkit-backface-visibility: hidden; /* Kunci anti-tembus buat iOS */
-        background-color: var(--glass-white);
+        -webkit-backface-visibility: hidden;
+        background-color: #ffffff; /* WAJIB putih solid, jangan transparan */
         border: 1px solid rgba(255, 255, 255, 0.8);
         border-radius: 32px; 
         padding: 35px 20px 25px;
         position: relative; 
         overflow: hidden; 
         pointer-events: none; 
+        transition: opacity 0.4s ease-in-out; /* Efek memudar halus pas muter */
     }
+
+    /* SIHIR ANTI-BUG HP: Sembunyikan sisi belakang pelan-pelan pas muter */
+    .card-3d-wrapper:not(.flipped) .card-face.back { opacity: 0; transition-delay: 0s; }
+    .card-3d-wrapper.flipped .card-face.front { opacity: 0; transition-delay: 0s; }
+    
+    .card-3d-wrapper:not(.flipped) .card-face.front { opacity: 1; transition-delay: 0.3s; }
+    .card-3d-wrapper.flipped .card-face.back { opacity: 1; transition-delay: 0.3s; }
 
     .card-face.front { 
         pointer-events: auto; 
@@ -123,7 +131,7 @@ new class extends Component
         border-radius: 20px; position: relative; 
         box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1); 
         border: 1px solid rgba(255,255,255,0.7); overflow: hidden; 
-        background: rgba(0,0,0,0.02); transform: translateZ(0); 
+        background: rgba(0,0,0,0.02); 
     }
     
     .gallery-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 35%; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 1; }
